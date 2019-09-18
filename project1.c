@@ -1,8 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
+#define MAX 1024
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <io.h>
 
 void select(FILE* fp);
 void insert(FILE* fp);
@@ -13,12 +15,37 @@ int main(int argc, char *argv[]) {
 
 	int choice;
 	int data_size = 0 ;
+	char *ch = (char*) malloc(sizeof(char) * MAX);
 
+	FILE *forigin = NULL;
 	FILE *fp = NULL;
+	char *file_name = "./pr.csv";
 
-	fp = fopen("contact2.csv", "a+");
+	forigin = fopen("contact2.csv", "r");
+	
+	
+	if (_access(file_name, 2) == 0) {
+		printf("already copy contact into %s\n", file_name);
+		fp = fopen("./pr.csv", "a+");
+	}
+	else {
+		if (forigin != NULL) {
+			fp = fopen("./pr.csv", "a+");
+			printf("Data LOADING...\n");
+			while ((fgets(ch, MAX, forigin)) != NULL) {
+				fprintf(fp, "%s", ch);
+				//printf("%d. %s \t ", ++i,ch);
+				// fputs(ch, fp);
+			}
+		}
+		free(ch);
+	}
+
+	fclose(forigin);
+
 
 	if (fp != NULL) {
+		
 		//연락처 기능 수행
 		while (1) {
 			printf("\nFUNCTION : ENTER NUMBER\n");
@@ -33,6 +60,8 @@ int main(int argc, char *argv[]) {
 				printf("\nDATABASE SYSTEM END\n");
 				break;
 			}
+
+			rewind(fp);
 
 			switch (choice) {
 			case 1:
@@ -56,7 +85,7 @@ int main(int argc, char *argv[]) {
 				printf("\nREENTER NUMBER BETWEEN 1~5\n");
 			}
 
-			rewind(fp);
+			
 		}
 	}
 
@@ -69,112 +98,141 @@ int main(int argc, char *argv[]) {
 
 
 void select(FILE* fp) {
-	
-	char input[10], data[50];
-	char find_name[38], find_number[12];
-	char *name, *number;
-	int count =0;
 
-	printf("NAME ((((or NUMBER))))))))\n");
+	char input[10], data[50];
+	char search[38];
+	char *name, *number;
+	int count = 0, mode;
+
+	printf("name OR number\n");
 	scanf("%s", input);
 
-	if (!strcmp(input, "NAME")) {
-		printf("SEARCH: ");
-		scanf("%s", find_name);
-		while (!feof(fp)) {
-			if (fgets(data, sizeof(data), fp) == NULL) break;
+	if (!strcmp(input, "name")) mode = 0;
+	else if (!strcmp(input, "number")) mode = 1;
+	else return;
+	
+	char *mode_c = (mode == 0) ? "name" : "number";
 
-			name = strtok(data, ",");
-			number = strtok(NULL, ",");
+	printf(" %s mode SEARCH: ", mode_c);
+	scanf("%s", search);
 
-			if (strstr(name, find_name)) {
-				printf("%s %s\n", name, number);
-				count++;
-			}
+	while (1) {
+		if (fgets(data, sizeof(data), fp) == NULL) 	break;
+		
+		name = strtok(data, ",");
+		number = strtok(NULL, ",");
+
+		if ((mode == 0 && strstr(name, search)) || (mode == 1 && strstr(number, search))) {
+			printf("%s %s\n", name, number);
+			count++;
 		}
-		printf("total : %d\n", count);
 	}
-	else if(!strcmp(input, "NUMBER")) {
-		printf("SEARCH: ");
-		scanf("%s", find_number);
-		while (!feof(fp)) {
-			if (fgets(data, sizeof(data), fp) == NULL) break;
-
-			name = strtok(data, ",");
-			number = strtok(NULL, ",");
-
-			if (strstr(number, find_number)) {
-				printf("%s %s\n", name, number);
-				count++;
-			}
-				
-		}
-		printf("total : %d\n", count);
-	}
-	else {
-		printf("WRONG : BACK TO FUNCTION\n");
-	}
+	printf("total : %d\n", count);
 }
+
 void insert(FILE* fp) {
 
-	//position = fseek(fp, 0, SEEK_END);
+	char name[50], number[12];
 
-	//fputs("WRITE", fp);
+	printf("insert NAME : ");
+	scanf("%s", name);
+	printf("insert NUMBER : ");
+	scanf("%s", number);
 
-	//fseek(fp, 0, SEEK_SET);
+	fprintf(fp, "\n%s,%s", name, number);
 
 }
+
 void update(FILE* fp) {
 
+	char input[10], data[50];
+	char update[38], *ptr;
+	char *name, *number;
+	int mode;
+	long seek;
+
+	printf("NAME or NUMBER\n");
+	scanf("%s", input);
+
+	if (!strcmp(input, "name")) mode = 0;
+	else if (!strcmp(input, "number")) mode = 1;
+	else return;
+
+	char *mode_c = (mode == 0) ? "name" : "number";
+
+	printf("%s mode UPDATE: ", mode_c);
+	scanf("%s", update);
+	
+	while (1) {
+
+		seek = ftell(fp);
+		
+		if (fgets(data, sizeof(data), fp) == NULL) {
+			printf("There is no such %s in this database system.\n", mode_c);
+			break;
+		}
+
+		name = strtok(data, ",");
+		number = strtok(NULL, ",");	
+		
+		if ((mode == 0 && !strcmp(name, update)) || (mode == 1 && !strcmp(number, update))) {
+			
+			printf("updating %s with : ", update);
+			scanf("%s", update);
+
+			ptr = strstr(name, name);
+			memcpy(ptr, update, strlen(update) + 1);
+			fseek(fp, seek, SEEK_SET);
+			fprintf(fp, "%s,%s\n", name, number);
+			fflush(fp);
+			
+			break;
+		}
+	}	
 }
+
 void delete(FILE* fp) {
 
 	char input[10], data[50];
-	char find_name[38], find_number[12];
+	char search[38];
 	char *name, *number;
+	int mode;
+
 	long seek, start;
 
 	printf("NAME or NUMBER\n");
 	scanf("%s", input);
 
-	if (!strcmp(input, "NAME")) {
-		printf("SEARCH: ");
-		scanf("%s", find_name);
-		while (!feof(fp)) {
-			if (fgets(data, sizeof(data), fp) == NULL) {
-				printf("There is no such name in this database system.\n");
-				break;
-			}
+	if (!strcmp(input, "name")) mode = 0;
+	else if (!strcmp(input, "number")) mode = 1;
+	else return;
 
-			name = strtok(data, ",");
-			number = strtok(NULL, ",");
-			
-			if (!strcmp(name, find_name)) {
-				printf("deleting %s %s\n", name, number);
-				seek = ftell(fp);
-				start = seek;
+	char *mode_c = (mode == 0) ? "name" : "number";
 
-				break;
-			}
+	printf("%s mode SEARCH: ", mode_c);
+	scanf("%s", search);
+
+	while (1) {
+
+		if (fgets(data, sizeof(data), fp) == NULL) {
+			printf("There is no such %s in this database system.\n", mode_c);
+			break;
+		}
+
+		name = strtok(data, ",");
+		number = strtok(NULL, ",");
+
+		if (mode == 0 && !strcmp(name, search)) {
+			printf("deleting %s %s\n", name, number);
+			seek = ftell(fp);
+			//start = seek;
+
+			break;
+		}
+		if (mode == 1 && !strcmp(number, search)) {
+			printf("deleting %s %s\n", name, number);
+
+			break;
 		}
 	}
-	else if (!strcmp(input, "NUMBER")) {
-		printf("SEARCH: ");
-		scanf("%s", find_number);
-		while (!feof(fp)) {
-			if (fgets(data, sizeof(data), fp) == NULL) {
-				printf("There is no such name in this database system.\n");
-				break;
-			}
-			name = strtok(data, ",");
-			number = strtok(NULL, ",");
-
-			if (!strcmp(number, find_number)) {
-				printf("deleting %s %s\n", name, number);
-			}
-
-		}
-	}
-
-
 }
