@@ -25,17 +25,15 @@ int main(int argc, char *argv[]) {
 	
 	
 	if (_access(file_name, 2) == 0) {
-		printf("already copy contact into %s\n", file_name);
-		fp = fopen("./pr.csv", "a+");
+		printf("already copy contact.csv into %s\n", file_name);
+		fp = fopen("./pr.csv", "r+");
 	}
 	else {
 		if (forigin != NULL) {
-			fp = fopen("./pr.csv", "a+");
+			fp = fopen(file_name, "w+");
 			printf("Data LOADING...\n");
 			while ((fgets(ch, MAX, forigin)) != NULL) {
 				fprintf(fp, "%s", ch);
-				//printf("%d. %s \t ", ++i,ch);
-				// fputs(ch, fp);
 			}
 		}
 		free(ch);
@@ -84,8 +82,6 @@ int main(int argc, char *argv[]) {
 			default:
 				printf("\nREENTER NUMBER BETWEEN 1~5\n");
 			}
-
-			
 		}
 	}
 
@@ -140,7 +136,6 @@ void insert(FILE* fp) {
 	scanf("%s", number);
 
 	fprintf(fp, "\n%s,%s", name, number);
-
 }
 
 void update(FILE* fp) {
@@ -150,6 +145,7 @@ void update(FILE* fp) {
 	char *name, *number;
 	int mode;
 	long seek;
+	char newupdate[38];
 
 	printf("NAME or NUMBER\n");
 	scanf("%s", input);
@@ -177,18 +173,21 @@ void update(FILE* fp) {
 		
 		if ((mode == 0 && !strcmp(name, update)) || (mode == 1 && !strcmp(number, update))) {
 			
-			printf("updating %s with : ", update);
+			printf("updating %s %s with : ", name, number);
+			memset(update, '\0', sizeof(update));
+
 			scanf("%s", update);
 
 			ptr = strstr(name, name);
 			memcpy(ptr, update, strlen(update) + 1);
+			printf("SEEK : %d\n", seek);
 			fseek(fp, seek, SEEK_SET);
-			fprintf(fp, "%s,%s\n", name, number);
+			fprintf(fp, "%s,%s", name, number);
 			fflush(fp);
 			
-			break;
 		}
-	}	
+	}
+	
 }
 
 void delete(FILE* fp) {
@@ -197,8 +196,7 @@ void delete(FILE* fp) {
 	char search[38];
 	char *name, *number;
 	int mode;
-
-	long seek, start;
+	long start, len;
 
 	printf("NAME or NUMBER\n");
 	scanf("%s", input);
@@ -214,19 +212,31 @@ void delete(FILE* fp) {
 
 	while (1) {
 
+		start = ftell(fp);
+
 		if (fgets(data, sizeof(data), fp) == NULL) {
 			printf("There is no such %s in this database system.\n", mode_c);
 			break;
 		}
+
+		//end = ftell(fp);
+		//printf("fp tell %d %d\n", start, end);
 
 		name = strtok(data, ",");
 		number = strtok(NULL, ",");
 
 		if (mode == 0 && !strcmp(name, search)) {
 			printf("deleting %s %s\n", name, number);
-			seek = ftell(fp);
-			//start = seek;
+			len = _filelength(_fileno(fp)) - ftell(fp);
+			char *tmp = (char*)malloc(len);
+			len = fread(tmp, 1, len, fp);
 
+			fseek(fp, start, SEEK_SET);
+			fwrite(tmp, 1, len, fp);
+			fflush(fp);
+			free(tmp);
+			_chsize(fileno(fp),ftell(fp));
+			
 			break;
 		}
 		if (mode == 1 && !strcmp(number, search)) {
@@ -234,5 +244,6 @@ void delete(FILE* fp) {
 
 			break;
 		}
+
 	}
 }
