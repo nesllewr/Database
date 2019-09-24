@@ -18,25 +18,25 @@ DATA *head=NULL;
 void load(FILE* fp);
 void save();
 
-void select();
+int select();
 void insert();
-void update();
-void delete();
+void update(int total);
+void delete(int total);
 
 int main(int argc, char *argv[]) {
 
-	int choice;
+	int choice, total;
 	char *ch = (char*)malloc(sizeof(char) * MAX);
 
 	FILE *forigin = NULL;
 	FILE *fp = NULL;
-	char *file_name = "pr.csv";
+	char *file_name = "2017029552_남은성.csv";
 
 	forigin = fopen("contact2.csv", "r");
 
 	if (_access(file_name, 2) == 0) {
 		printf("already copy contact.csv into %s\n", file_name);
-		fp = fopen("pr.csv", "a+");
+		fp = fopen(file_name, "r");
 	}
 	else {
 		if (forigin != NULL) {
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 	printf("DATA LOADING...");
 
 	load(fp);
-
+	
 	fclose(fp);
 	
 	printf("FINISH");
@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
 				"4. DELETE\n"
 				"5. END\n");
 			scanf("%d", &choice);
+			while (getchar() != '\n');
 
 			if (choice == 5) {
 				printf("\nDATABASE SYSTEM END\n");
@@ -88,13 +89,13 @@ int main(int argc, char *argv[]) {
 				break;
 			case 3:
 				printf("	3. UPDATE\n");
-				select();
-				update();
+				total = select();
+				update(total);
 				break;
 			case 4:
 				printf("	4. DELETE\n");
-				select();
-				delete();
+				total = select();
+				delete(total);
 				break;
 			default:
 				printf("\nENTER NUMBER BETWEEN 1~5\n");
@@ -104,6 +105,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	save();
+	printf("DATA SAVED !\n");
 
 	system("pause");
 
@@ -124,7 +126,7 @@ void load(FILE* fp) {
 		new_data->next = NULL;
 
 		name = strtok(input, ",");
-		number = strtok(NULL, "");
+		number = strtok(NULL, "\n");
 		
 		strcpy(new_data->name, name);
 		strcpy(new_data->number, number);
@@ -142,53 +144,52 @@ void load(FILE* fp) {
 	}
 }
 void save() {
-	FILE *result = fopen("result.csv", "w");
+	FILE *result = fopen("2017029552_남은성.csv", "w");
 
 	DATA *tmp = head;
 	while (tmp!= NULL) {
-		fprintf(result, "%s,%s", tmp->name, tmp->number);
+		fprintf(result, "%s,%s\n", tmp->name, tmp->number);
 		tmp = tmp->next;
 	}
 }
-void select() {
+int select() {
 
 	char input[10];
 	char search[38];
 	int count = 0, mode;
 
-	printf("name OR number\n");
-	scanf("%s", input);
-
+	printf("SEARCH MODE: name OR number\n");
+	gets(input);
 	if (!strcmp(input, "name")) mode = 0;
 	else if (!strcmp(input, "number")) mode = 1;
 	else return;
 
 	char *mode_c = (mode == 0) ? "name" : "number";
 
-	printf(" %s mode SEARCH: ", mode_c);
-	scanf("%s", search);
-
+	printf("SEARCH %s mode : ", mode_c);
+	gets(search);
 	DATA *tmp = head;
 
 	while (tmp != NULL) {
 		tmp->check = 0;
 		if ((mode == 0 && strstr(tmp->name, search)) || (mode == 1 && strstr(tmp->number, search))) {
-			printf("%d. %s  %s", ++count, tmp->name, tmp->number);
+			printf("%d. %s  %s\n", ++count, tmp->name, tmp->number);
 			tmp->check = count;
 		}
 		tmp = tmp->next;
 	}	
-	printf("total : %d\n", count);
+	printf("TOTAL : %d\n", count);
+
+	return count;
 }
 void insert() {
 	char name[50], number[12];
 
 	printf("insert NAME : ");
-	//gets(name);
-	scanf("%s", name);
+	gets(name);
 	printf("insert NUMBER : ");
-	scanf("%s", number);
-	//gets(number);
+	gets(number);
+
 	DATA *new_data = (DATA*)malloc(sizeof(DATA));
 	strcpy(new_data->name, name);
 	strcpy(new_data->number,number);
@@ -196,78 +197,76 @@ void insert() {
 	new_data->next = head->next;
 	head ->next = new_data;
 
-	printf("%s %s\n", head->name, head->number);
-
 }
-void update() {
+void update(int total) {
+
+	if (total < 1) return;
 	
 	int confirm, mode;
-	char input[10],find[50];
+	char input[50],find[50];
 	DATA *tmp = head;
 
 	printf("select one to update...(choose number): ");
+	
 	scanf("%d", &confirm);
+	getchar();
+
+	if (confirm > total) {
+		printf("out of range\n");
+		return;
+	}
 
 	while (tmp != NULL) {
 		if (tmp->check == confirm) {
-
-			printf("name OR number\n");
-			scanf("%s", input);
-
-			if (!strcmp(input, "name")) mode = 0;
-			else if (!strcmp(input, "number")) mode = 1;
-			else return;
-
-			char *mode_c = (mode == 0) ? "name" : "number";
-
-			printf("%s mode UPDATE ", mode_c);
-			if (mode == 0) {
-				printf("%s with...", tmp->name);
-				scanf("%s", find);
-				strcpy(tmp->name, find);
-				break;
+			printf("modify name %s (newname or just enter to skip): ",tmp->name);
+			gets(input);
+			if (input[0] != 0) {
+				printf("update %s with %s....", tmp->name, input);
+				strcpy(tmp->name, input);
 			}
-			if (mode == 1) {
-				printf("%s with...", tmp->name);
-				scanf("%s", find);
+			printf("modify number %s (new number or just enter to skip): ",tmp->number);
+			gets(find);
+			if (find[0] != 0) {
+				printf("update %s with %s....", tmp->number, find);
 				strcpy(tmp->number, find);
-				break;
 			}
+			return;
 		}	
 		tmp = tmp->next;
 	}
 }
-void delete() {
+void delete(int total) {
+
+	if (total < 1) return;
+
 	int confirm;
-	char answer[4];
+	char answer[40];
 	DATA *de;
 
 	printf("select one to delete...(choose number): ");
 	scanf("%d", &confirm);
+	getchar();
 
-	if (head->check == confirm) {
-		printf("delete %s %s ?(yes OR no) : ", head->name, head->number);
-		scanf("%s", answer);
-		if (!strcmp(answer, "yes")) {
-			de = head;
-			head = head->next;
-			free(de);
-			return;
-		}
+	if (confirm > total) {
+		printf("out of range\n");
+		return;
 	}
-	else {
-		DATA* tmp = head;
-		DATA* prev = NULL;
-		while (tmp->check != confirm) {
-			prev = tmp;
-			tmp = tmp->next;
-		}
-		printf("delete %s %s ?(yes OR no) : ", tmp->name, tmp->number);
-		scanf("%s", answer);
-		if (!strcmp(answer, "yes")) {
-			de = tmp;
-			prev->next = tmp->next;
-		}
+
+	DATA* tmp = head;
+	DATA* prev = NULL;
+	while (tmp->check != confirm) {
+		prev = tmp;
+		tmp = tmp->next;
 	}
-	free(de);
+	printf(" delete %s %s (yes OR no) ? : ", tmp->name, tmp->number);
+	scanf("%s", answer);
+	getchar();
+	if (!strcmp(answer, "yes")) {
+		de = tmp;
+		prev->next = tmp->next;
+		free(de);
+		printf("DATA deleted\n");
+		return;
+	}
+	else return;
 }
