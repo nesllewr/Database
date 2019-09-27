@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 typedef struct DATA{
-	char name[40];
+	char name[50];
 	char number[15];
 	int check;
 	struct DATA *next;
@@ -15,6 +15,7 @@ typedef struct DATA{
 
 DATA *head=NULL;
 
+int regex(char*);
 void load(FILE* fp);
 void save();
 
@@ -33,7 +34,6 @@ int main(int argc, char *argv[]) {
 	char *file_name = "2017029552_남은성.csv";
 
 	forigin = fopen("contact.csv", "r");
-
 
 	if (access(file_name, 2) == 0) {
 		printf("already copy contact.csv into %s\n", file_name);
@@ -74,7 +74,8 @@ int main(int argc, char *argv[]) {
 				"4. DELETE\n"
 				"5. END\n");
 			scanf("%d", &choice);
-			while (getchar() != '\n');
+			getchar();
+			//while (getchar() != '\n');
 
 			if (choice == 5) {
 				printf("\nDATABASE SYSTEM END\n");
@@ -115,6 +116,32 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+int regex(char *input){
+
+	char result[100];
+	char base[100];
+
+	sscanf(input, "%3[0-9]%8[0-9]", base, result);
+	
+	int check = 1;
+	if(!strcmp(base, "010")) {
+		strcat(base, result);
+		if(!strcmp(base, input)) {
+			check = 0; 
+		}
+	} else {
+		check = 1;
+	}
+	if(check == 1) {
+		printf("%s and %s is incorrect\n", input, base);
+	} else {
+		printf("%s and %s is correct\n", input, base);
+	}
+
+	return check;
+
+}
+
 void load(FILE* fp) {
 	
 	DATA *new_data;
@@ -130,17 +157,23 @@ void load(FILE* fp) {
 
 		name = strtok(input, ",");
 		number = strtok(NULL, "\n");
-		
+
 		strcpy(new_data->name, name);
 		strcpy(new_data->number, number);
 		new_data->check = 0;//한 줄 씩 읽어온 데이터를 ","와 "\n"을 기준으로
                           //parsing한 다음 동적할당한 구조체에 넣어준다.
-		//printf("input : %s %s", new_data->name, new_data->number);
+		//printf("INPUT : %s %s", new_data->name, new_data->number);
+
 		if (head == NULL) { 
 			head = new_data;
 			prev = head;//"name"과 "phone"은 head 구조체에 담아놓는다.
 		}
 		else {
+			// if(regex(number)==1){
+			// 	printf("wrong data number input: %s\n", number);
+			// 	exit(-1);
+			// }
+			// number = strtok(number,"\n");
 			DATA *tmp = prev;
 			tmp->next = new_data;
 			prev = tmp->next;
@@ -167,40 +200,49 @@ int _select() {
 	gets(input);
 	if (!strcmp(input, "name")) mode = 0;
 	else if (!strcmp(input, "number")) mode = 1;
-	else return;
+	else return -1;//이름과 번호 중 검색 모드를 설정하고 그외 입력은 return
 
 	char *mode_c = (mode == 0) ? "name" : "number";
 
 	printf("SEARCH %s mode : ", mode_c);
 	gets(search);
+	if(search[0] == 0) return -1;;
 	DATA *tmp = head;
 
 	while (tmp != NULL) {
-		tmp->check = 0;
+		tmp->check = 0;//check를 항상 0으로 초기화
 		if ((mode == 0 && strstr(tmp->name, search)) || (mode == 1 && strstr(tmp->number, search))) {
 			printf("%d. %s  %s\n", ++count, tmp->name, tmp->number);
 			tmp->check = count;
-		}
+		}//각 모드와 찾으려는 값(search)과 일차하면 count를 올리고 화면에 출력
 		tmp = tmp->next;
 	}	
 	printf("TOTAL : %d\n", count);
 
-	return count;
+	return count;//insert와 delete에 전달할 인자 반환
 }
 void insert() {
+	
 	char name[50], number[12];
 
 	printf("insert NAME : ");
-	scanf("%s",name);
-	getchar();
+	gets(name);
+	if (name[0] == 0) return;
+
 	
 	printf("insert NUMBER : ");
-	scanf("%s",n);
-	getchar();
-
+	gets(number);
+	if (number[0] == 0)return;
+		
+	//printf("insert : %s next	 %s\n",name,number);
 	DATA *new_data = (DATA*)malloc(sizeof(DATA));
 	strcpy(new_data->name, name);
 	strcpy(new_data->number,number);
+
+	// if(regex(new_data->number)!=0){
+	// 	printf("wrong data number input: %s\n",new_data->number);
+	// 	return;
+	// }
 	
 	new_data->next = head->next;
 	head ->next = new_data;
@@ -208,21 +250,23 @@ void insert() {
 }
 void update(int total) {
 
-	if (total < 1) return;
-	
+	if (total < 1) return;//받은 total이 없으면 
+						//수정할 데이터가 없으므로 바로 리턴
 	int confirm, mode;
 	char input[50],find[50];
 	DATA *tmp = head;
+	char *regex_check;
 
 	printf("select one to update...(choose number): ");
 	
 	scanf("%d", &confirm);
 	getchar();
 
-	if (confirm > total) {
+	if (confirm > total && confirm < 1) {
 		printf("out of range\n");
 		return;
-	}
+	}//select한 수보다 더 큰 수를 입력하면 데이터를 찾을 수 없으므로 리턴
+
 
 	while (tmp != NULL) {
 		if (tmp->check == confirm) {
@@ -236,10 +280,15 @@ void update(int total) {
 			gets(find);
 			if (find[0] != 0) {
 				printf("update %s with %s....", tmp->number, find);
+				//strcpy(regex_check, find);
+				// if (regex(regex_check) == 0) {
+				// 	printf("wrong data number input: %s\n", tmp->number);
+				// 	return;
+				// }
 				strcpy(tmp->number, find);
 			}
 			return;
-		}	
+		}//수정할 데이터를 찾으면 name과 number를 수정하고 바로 리턴		
 		tmp = tmp->next;
 	}
 }
@@ -255,20 +304,22 @@ void delete(int total) {
 	scanf("%d", &confirm);
 	getchar();
 
-	if (confirm > total) {
+	if (confirm > total && confirm < 1) {
 		printf("out of range\n");
 		return;
-	}
+	}//update와 같이 해당 범위 내에 삭제할 데이터가 없으면 리턴
+
 
 	DATA* tmp = head;
 	DATA* prev = NULL;
 	while (tmp->check != confirm) {
 		prev = tmp;
 		tmp = tmp->next;
-	}
+	}//삭제하려는 데이터를 찾는다.
 	printf(" delete %s %s (yes OR no) ? : ", tmp->name, tmp->number);
-	scanf("%s", answer);
-	getchar();
+	gets(answer);
+	if (answer[0] == 0) return;
+	
 	if (!strcmp(answer, "yes")) {
 		de = tmp;
 		prev->next = tmp->next;
@@ -276,5 +327,6 @@ void delete(int total) {
 		printf("DATA deleted\n");
 		return;
 	}
-	else return;
+	else return;//데이터를 삭제할 지 한 번 더 묻고 yes면 데이터를 삭제하고
+				//그 외에 답변은 바로 리턴한다.
 }
