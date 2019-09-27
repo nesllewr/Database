@@ -118,11 +118,13 @@ int main(int argc, char *argv[]) {
 
 int regex(char *input){
 
+	printf("REGET%s",input);
+
 	char result[100];
 	char base[100];
 
 	sscanf(input, "%3[0-9]%8[0-9]", base, result);
-	
+
 	int check = 1;
 	if(!strcmp(base, "010")) {
 		strcat(base, result);
@@ -132,14 +134,9 @@ int regex(char *input){
 	} else {
 		check = 1;
 	}
-	if(check == 1) {
-		printf("%s and %s is incorrect\n", input, base);
-	} else {
-		printf("%s and %s is correct\n", input, base);
-	}
 
+	printf("NEXT %sWOW%s",input,base);
 	return check;
-
 }
 
 void load(FILE* fp) {
@@ -157,26 +154,20 @@ void load(FILE* fp) {
 
 		name = strtok(input, ",");
 		number = strtok(NULL, "\n");
-
+		
 		strcpy(new_data->name, name);
 		strcpy(new_data->number, number);
 		new_data->check = 0;//한 줄 씩 읽어온 데이터를 ","와 "\n"을 기준으로
                           //parsing한 다음 동적할당한 구조체에 넣어준다.
-		//printf("INPUT : %s %s", new_data->name, new_data->number);
-
 		if (head == NULL) { 
 			head = new_data;
 			prev = head;//"name"과 "phone"은 head 구조체에 담아놓는다.
 		}
 		else {
-			// if(regex(number)==1){
-			// 	printf("wrong data number input: %s\n", number);
-			// 	exit(-1);
-			// }
-			// number = strtok(number,"\n");
 			DATA *tmp = prev;
 			tmp->next = new_data;
 			prev = tmp->next;
+			//printf("INPUT : %s %s", new_data->name, new_data->number);
 		}//가장 마지막 노드를 prev에 저장해서 새로 받는 데이터를 뒤에 바로
 	}   //연결하고 prev를 계속해서 update한다.
 }
@@ -239,11 +230,6 @@ void insert() {
 	strcpy(new_data->name, name);
 	strcpy(new_data->number,number);
 
-	// if(regex(new_data->number)!=0){
-	// 	printf("wrong data number input: %s\n",new_data->number);
-	// 	return;
-	// }
-	
 	new_data->next = head->next;
 	head ->next = new_data;
 
@@ -280,11 +266,6 @@ void update(int total) {
 			gets(find);
 			if (find[0] != 0) {
 				printf("update %s with %s....", tmp->number, find);
-				//strcpy(regex_check, find);
-				// if (regex(regex_check) == 0) {
-				// 	printf("wrong data number input: %s\n", tmp->number);
-				// 	return;
-				// }
 				strcpy(tmp->number, find);
 			}
 			return;
