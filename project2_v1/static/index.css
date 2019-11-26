@@ -1,0 +1,37 @@
+/*
+    *: 모든 elements에 대하여 속성 부여
+    list-style: none => 글머리기호 지우기
+    margin, padding의 default는 항상 0
+    border-collapse: none => table cell 사이의 간격 제거
+    display: inline-block => inline: 옆에 inline 요소가 있으면 달라붙음, block: width를 가질 수 있음
+
+    selector
+    tag, class, id, :..., [...]
+    
+    tag:nth-child(n)
+    tag:first-child
+    tag:last-child
+    tag:hover
+    tag[type=radio] => input[type=radio] {...}
+
+    border
+    1. border-width, border-style, border-color
+    2. border: 1px solid black
+
+
+*/
+* { text-decoration: none; color: #333; list-style: none; margin: 0; padding:0; border-collapse: collapse; box-sizing: border-box;}
+.w100 { width: 1000px; margin: 0 auto;}
+header { background: #ccc; padding: 50px 0;}
+header nav { margin-top: 50px;}
+header nav ul li { width: auto; display: inline-block; margin-right: calc(20px - 4px);}
+header nav ul li a {color: #666;}
+header nav ul li:hover a { color: #333;}
+section { padding: 50px 0;}
+section table { width: 100%;}
+section table th { background: #ccc; padding: 15px 0;}
+section table th:nth-child(1) { width: 10%;}
+section table th:nth-child(2) { width: 30%;}
+section table th:nth-child(3) { width: 60%;}
+section table td { padding: 10px 0; border-bottom: 1px solid #ddd; text-align: center;}
+section table tbody tr:nth-child(2n) { background: #f5f5f5;}

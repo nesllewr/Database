@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+    <head>
+        <title>DB</title>
+        <link rel="stylesheet" href="/static/index.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <style>
+            #search{
+                border-radius: 100px;
+                height : 30px;
+                border: 1px solid #CCC;
+                padding: 0 10px;
+            }
+            #submit{
+                height : 30px;
+                border : none;
+                padding : 0 10px;
+                background: #888;
+                color : white;                
+            }
+        </style>
+    </head>
+    <script>
+        // comment
+        /* long comment */
+    </script>
+    <body>
+        <header>
+            <div class="w100">
+                <h1>
+                    <a href="/">HYU DB Project A2</a>
+                </h1>
+    
+                <nav>
+                    <ul>
+                        <!-- <li>
+                            <a href="select">SELECT</a>
+                        </li>    -->
+                        <li>
+                            <a href="insert">INSERT</a>
+                        </li>
+                        <li>
+                            <a href="update">UPDATE</a>
+                        </li>
+                        <li>
+                            <a href="delete">DELETE</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>        
+        <section>
+            <div class="w100">
+                <div>
+                    <form action="/data" method="post">
+                        <input type="text" id="search" name="search" placeholder="검색어를 입력해주세요">
+                        <button type="submit" id="submit">검색</button>
+                    </form>
+                </div>
+                <br>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Name</th>
+                            <th>Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="3">검색 결과가 표시됩니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <footer>
+            <div class="w100">
+                HYU DB Project - A2
+            </div>
+        </footer>
+
+        <script>
+        $(function() {
+            $("form").submit(function(e) {
+                e.preventDefault(e);
+
+                var word = $("#search").val();
+
+                if(word.length == 0) {
+                    alert("검색어를 입력하세요.");
+                    return false;
+                }
+
+                $.ajax({
+                    url: "/data",
+                    data: {
+                        word: word
+                    },
+                    dataType: "JSON",
+                    type: "post",
+                    success: function(data) {
+                        // e => index number, el => element
+                        // for(i in range(1, 10)) {}
+                        var tbody = "";
+
+                        if(data.length <= 0) {
+                            tbody += "<tr>";
+                            tbody += "<td colspan='3'>검색 결과가 없습니다.</td>";
+                            tbody += "</tr>";
+                        } else {
+                            $(data).each(function(e, el) {
+                                tbody += "<tr>";
+                                tbody += "<td>"+ el.idx +"</td>";
+                                tbody += "<td>"+ el.name +"</td>";
+                                tbody += "<td>"+ el.phone +"</td>";
+                                tbody += "</tr>";
+                            });
+                        }
+
+                        /*
+                        for(var i = 0; i < data.length; i++) {
+                            var el = data[i];
+                            var e = i;
+                        }
+                        */
+
+                        $("table tbody").html(tbody);
+                    }
+                });
+            })
+
+        });
+        </script>
+    </body>
+</html>

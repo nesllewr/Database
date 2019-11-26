@@ -1,0 +1,31 @@
+#name{
+    border-radius: 10px;
+    height : 30px;
+    border: 1px solid #CCC;
+    padding: 0 10px;
+}
+#txtMobile1{
+    border-radius: 10px;
+    height : 30px;
+    border: 1px solid #CCC;
+    padding: 0 10px;
+}
+#txtMobile2{
+    border-radius: 10px;
+    height : 30px;
+    border: 1px solid #CCC;
+    padding: 0 10px;
+}
+#txtMobile3{
+    border-radius: 10px;
+    height : 30px;
+    border: 1px solid #CCC;
+    padding: 0 10px;
+}
+#submit{
+    height : 30px;
+    border : none;
+    padding : 0 10px;
+    background: #888;
+    color : white;                
+}ㄴ

@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+    <head>
+        <title>DB</title>
+        <link rel="stylesheet" href="/static/index.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    </head>
+    <body>
+        <header>
+            <div class="w100">
+                <h1>
+                    <a href="/">HYU DB Project A2 - SELECT</a>
+                </h1>
+
+                <nav>
+                    <ul>
+                        <li>
+                            <a href="select">SELECT</a>
+                        </li>
+                        <li>
+                            <a href="insert">INSERT</a>
+                        </li>
+                        <li>
+                            <a href="update">UPDATE</a>
+                        </li>
+                        <li>
+                            <a href="delete">DELETE</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header> 
+
+        <section>
+            <div class="w100">
+                <form action="save" method="post">
+                    <div>
+                        <input type="radio" name="chk_info" value="name" checked="checked"/>이름
+                        <input type="radio" name="chk_info" value="number"/>전화번호
+                    </div>
+                    <div>
+                        <label for="name">이름</label>
+                        <input type="text" id="name" placeholder="홍길동">
+                    </div>    
+                    <div>
+                        <label for="txtMobile1">전화번호 입력</label>    
+                        <select id="txtMobile1">
+                                <option value="">::선택::</option>
+                                <option value="010">010</option>
+                            </select>
+                        <input type="text" id="txtMobile2" size="4">
+                        <input type="text" id="txtMobile3" size="4">            
+                    </div>
+                    <div>
+                        <button type="submit" id="submit">검색</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <footer>
+            <div class="w100">
+                HYU DB Project - A2
+            </div>
+        </footer>
+        
+        <script>
+            $(function() {
+                //입력값 확인
+                function onlyNumber() {
+                    if ((event.keyCode < 48) || (event.keyCode > 57))
+                        event.returnValue = false;
+                }
+                
+                $("#txtMobile2, #txtMobile3").on("keypress", onlyNumber);
+                $("#submit").on("click", function() {
+                    if($("#name").val() == "") {
+                        alert("이름을 입력하세요.");
+                        return false;
+                    }
+                    if($("#txtMobile1").val() == "") {
+                        alert("휴대폰 번호의 앞 번호를 선택하세요.");
+                        return false;
+                    }
+                    if($("#txtMobile2").val().length != 4) {
+                        alert("휴대폰 번호는 4자리로 입력하세요.");
+                        return false;
+                    }
+                    if($("#txtMobile3").val().length != 4) {
+                        alert("휴대폰 번호는 4자리로 입력하세요.");
+                        return false;
+                    }
+        
+                    // return false
+                });
+            });
+        </script>
+    </body>
+</html>
