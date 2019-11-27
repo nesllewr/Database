@@ -3,7 +3,6 @@
     <head>
         <title>DB</title>
         <link rel="stylesheet" href="/static/index.css">
-        <link rel="stylesheet" href="/static/txtInput.css">
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     </head>
     <body>
@@ -21,12 +20,6 @@
                         <li>
                             <a href="insert">INSERT</a>
                         </li>
-                        <!-- <li>
-                            <a href="update">UPDATE</a>
-                        </li>
-                        <li>
-                            <a href="delete">DELETE</a>
-                        </li> -->
                     </ul>
                 </nav>
             </div>
@@ -37,18 +30,10 @@
                 <!-- 127.0.0.1:5000/save -->
                 <form action="/save" id="register" method="post">
                     이름
-                    <input type="text" id="name">
+                    <input type="text" id="name" class="input">
                 
                     전화 번호 입력
-                    <!-- <select id="txtMobile1">
-                        <option value="">::선택::</option>
-                        <option value="010">010</option>
-                    </select>
-                    <input type="text" id="txtMobile2" size="4">
-                    <input type="text" id="txtMobile3" size="4">
-                     -->
-                    <input type="text" id="phone">
-                    <!-- <input type="tel" id="phone" pattern="(010)-\d{4}-\d{4}" > -->
+                    <input type="text" id="phone" class="input center">
                     <button class="btn" type="submit" id="submit">추가</button>
                 </form>
             </div>
@@ -61,31 +46,6 @@
         </footer>
         
         <script>
-            /* function inputPhoneNumber(obj) {
-                var number = obj.value.replace(/[^0-9]/g, "");
-                var phone = "";
-
-                if(number.length < 4) {
-                    return number;
-                } else if(number.length < 7) {
-                    phone += number.substr(0, 3);
-                    phone += "-";
-                    phone += number.substr(3);
-                } else if(number.length < 11) {
-                    phone += number.substr(0, 3);
-                    phone += "-";
-                    phone += number.substr(3, 3);
-                    phone += "-";
-                    phone += number.substr(6);
-                } else {
-                    phone += number.substr(0, 3);
-                    phone += "-";
-                    phone += number.substr(3, 4);
-                    phone += "-";
-                    phone += number.substr(7);
-                }
-                obj.value = phone;
-            } */
             $(function(){
                function onlyNumber() {
                     if ((event.keyCode < 48) || (event.keyCode > 57))
@@ -129,37 +89,7 @@
         
                 });
 
-            });          
-
-            // $(function() {
-            //     //입력값 확인
-            //     function onlyNumber() {
-            //         if ((event.keyCode < 48) || (event.keyCode > 57))
-            //             event.returnValue = false;
-            //     }
-                
-            //     $("#txtMobile2, #txtMobile3").on("keypress", onlyNumber);
-            //     $("#submit").on("click", function() {
-            //         if($("#name").val() == "") {
-            //             alert("이름을 입력하세요.");
-            //             return false;
-            //         }
-            //         if($("#txtMobile1").val() == "") {
-            //             alert("휴대폰 번호의 앞 번호를 선택하세요.");
-            //             return false;
-            //         }
-            //         if($("#txtMobile2").val().length != 4) {
-            //             alert("휴대폰 번호는 4자리로 입력하세요.");
-            //             return false;
-            //         }
-            //         if($("#txtMobile3").val().length != 4) {
-            //             alert("휴대폰 번호는 4자리로 입력하세요.");
-            //             return false;
-            //         }
-        
-            //         // return false
-            //     });
-            // });
+            });
         </script>
     </body>
 </html>

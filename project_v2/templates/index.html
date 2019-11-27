@@ -3,7 +3,6 @@
     <head>
         <title>DB</title>
         <link rel="stylesheet" href="/static/index.css">
-        <link rel="stylesheet" href="/static/txtInput.css">
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <style>
             .info {
@@ -35,10 +34,6 @@
             }
         </style>
     </head>
-    <script>
-        // comment
-        /* long comment */
-    </script>
     <body>
         <header>
             <div class="w100">
@@ -54,12 +49,6 @@
                         <li>
                             <a href="/insert">INSERT</a>
                         </li>
-                        <!-- <li>
-                            <a href="update">UPDATE</a>
-                        </li> -->
-                        <!-- <li>
-                            <a href="delete">DELETE</a>
-                        </li> -->
                     </ul>
                 </nav>
             </div>
@@ -106,12 +95,6 @@
                 e.preventDefault(e);
 
                 var word = $("#search").val();
-                // function phoneFormat(){
-                //     var str = $('#phoneFormat').text().trim();    
-                //     var phone = str.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
-                //     $('#phoneFormat').text(phone);
-                // }
-
 
                 if(word.length == 0) {
                     alert("검색어를 입력하세요.");
@@ -162,20 +145,6 @@
                     }
                 });
             })
-            // $("document").on("click","button[name=del]",function(){
-            //     var trHtml = $(this).parent().parent();
-            //     trHtml.remove();
-            // });
-            // $("document").on("click","button[name=update]",function(){
-                
-            // });
-
-            // 원래 DOM에만 반응
-            // $(".delbtn").click(function() {})
-            // $(".delbtn").on("click", function() {})
-
-            // 새로 생기는 DOM에 반응
-            // $("body").on("click", ".delbtn", function() {})
 
             $("body").on("click", ".updbtn", function() {
                 location.href = '/update?idx=' + $(this).attr("data-idx");
@@ -196,55 +165,7 @@
                         $(btn).parents("tr").remove();
                     }
                 });
-            //     $.ajax({
-            //         type: "DELETE",
-            //         url: "/del",
-            //         data:{id:deleteid},
-            //         success: function(response){
-            //             if(response==1){
-            //                 $(el).closest('tr').fadeOut(function(){
-            //                     $(this).remove();
-            //                 });
-
-            //             }else{
-            //                 alert('failed');
-            //             }
-            //         }
-
-
-
-            //     });
             });
-            $("body").on("click","updbtn",function(){
-
-            });
-            // $("document").on("click",".delBtn",function(){
-            //     var el = $(this);
-            //     var id = el.attr("idx");
-            //     var delId = $(this).attr()
-            //     $.ajax({
-            //         type: "DELETE",
-            //         url: "/del",
-            //         data:{id:deleteid},
-            //         success: function(response){
-            //             if(response==1){
-            //                 $(el).closest('tr').fadeOut(function(){
-            //                     $(this).remove();
-            //                 });
-
-            //             }else{
-            //                 alert('failed');
-            //             }
-            //         }
-
-
-
-            //     });
-            // });
-            $("document").on("click","button[name=update]",function(){
-                
-            });
-
         });
         </script>
     </body>

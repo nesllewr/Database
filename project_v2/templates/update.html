@@ -3,7 +3,6 @@
     <head>
         <title>DB</title>
         <link rel="stylesheet" href="/static/index.css">
-        <link rel="stylesheet" href="/static/txtInput.css">
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     </head>
     <body>
@@ -31,10 +30,10 @@
                 <!-- 127.0.0.1:5000/save -->
                 <form action="/modify" id="register" method="post">
                     이름
-                    <input type="text" id="name">
+                    <input type="text" id="name" class="input">
                 
                     전화 번호 입력
-                    <input type="text" id="phone">
+                    <input type="text" id="phone" class="input center">
                     <button class="btn" type="submit" id="submit">수정</button>
                 </form>
             </div>
@@ -104,9 +103,7 @@
                              alert("try again");
                          }
                      });
-        
                 });
-
             });   
         </script>
     </body>

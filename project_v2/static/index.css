@@ -37,3 +37,26 @@ section table th:nth-child(4) { width: 10%;}
 section table th:nth-child(5) { width: 10%;}
 section table td { padding: 10px 0; border-bottom: 1px solid #ddd; text-align: center;}
 section table tbody tr:nth-child(2n) { background: #f5f5f5;}
+
+.input {
+    border-radius: 10px;
+    height : 30px;
+    border: 1px solid #CCC;
+    padding: 0 10px;
+}
+
+.center {
+    text-align: center;
+}
+
+.btn {
+    height : 30px;
+    border : none;
+    padding : 0 10px;
+    background: #888;
+    color : white;                
+}
+
+.btn.btn-red {
+    background: #d85a5a;
+}

@@ -10,7 +10,7 @@ app.config.from_object(__name__)
 
 @app.route('/')
 def index():
-	helper.initialize_table()
+	helper.initialize()
 	return render_template('index.html')
 
 @app.route('/data', methods=["POST"])

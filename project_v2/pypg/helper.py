@@ -85,8 +85,8 @@ def delete_data(index):
 # update phonebook set name = ..., phone = ... where idx = ...
 # insert into phonebook (name, phone) values (..., ...)
 
-def initialize_table():
-
+def initialize():
+    # Initialize table
     sql = f'''CREATE TABLE if not exists phonebook (
             idx bigserial primary key,
             name varchar(40) NOT NULL,
@@ -109,18 +109,25 @@ def initialize_table():
     cursor.execute('''select count(*) as cnt from phonebook''')
     result = cursor.fetchall()
 
+    #table에 data가 없는 경우 초기 데이터 contact.csv을 table에 copy
     if result[0][0] <= 0 :
-        f = open('contact.csv','r',encoding='utf-8')
-        reader = csv.reader(f)
-        i = 0
-        for line in reader:
-            if i == 0:
-                i = i + 1
-                continue
-
-            sql = f'''insert into phonebook (name, phone) values ('{line[0]}', '{line[1]}')'''
-            cursor.execute(sql)
-            connect.commit()
+        f = open(r'C:\Users\llewr\Database\project_v2\contact.csv', 'r', encoding='UTF8')
+        cursor.copy_from(f, "phonebook", sep=',', columns=['name', 'phone'])
+        #파일 객체 table name seperator(delim) [column옵션] 
         f.close()
+
+        connect.commit()
+
+        #f = open('contact.csv','r',encoding='utf-8')
+        #reader = csv.reader(f)
+        #i = 0
+        #for line in reader:
+        #    if i == 0:
+        #        i = i + 1
+        #        continue
+
+        #   sql = f'''insert into phonebook (name, phone) values ('{line[0]}', '{line[1]}')'''
+        #cursor.execute(sql)
+        #connect.commit()
     
     connect.close()
