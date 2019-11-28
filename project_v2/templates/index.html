@@ -163,6 +163,7 @@
                     success: function(data) {
                         console.log(data);
                         $(btn).parents("tr").remove();
+                        $(".resultCnt span").text(parseInt($(".resultCnt span").text()) - 1);         
                     }
                 });
             });

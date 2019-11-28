@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+    <head>
+        <title>DB</title>
+        <link rel="stylesheet" href="/static/login.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="w100">
+                <h1>
+                    <a href="/" style="color:aliceblue;">HYU DB Term Project - Dr.HYU</a>
+                </h1>
+            </div>
+        </header> 
+        
+        <div id="absoluteCenteredDiv">
+            <form action="/login" method="post">
+                <div class="box">
+                    <h1>Login Form</h1>
+                    <div class="check-login">
+                        <form name="check-info" method="post">
+                            <input type="radio" name="client" value="환자" checked> 환자
+                            <input type="radio" name="client" value="상점"> 상점
+                            <input type="radio" name="client" value="병원"> 병원
+                        </form>
+                    </div>
+                    <input class="username" name="username" id="user-id "type="email" placeholder="User e-mail">
+                    <input class="username" name="username" id="user-pw" type="password" placeholder="Password">
+                    
+                    <button type="submit" id="submit" class="btn-login">Sign IN</button>
+                </div>
+            </form>
+            <div id="msg"></div>
+              
+            <footer>
+                <div>
+                    HYU DB Term Project
+                </div>
+            </footer>
+        </div>      
+    </body>
+        <script>
+            $(document).ready(function() {
+                $('#btn-login').click(function() {
+
+                    //var action = $('#frmLogin').attr("action");
+                    var form_data = {
+                        user_id: $('#user-id').val(),
+                        user_pw: $('#user-pw').val()
+                    };
+
+                    if(user_id==""||user_pw==""){
+                        alert("아이디/비밀번호를 입력하세요.")
+                        return false
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/login",
+                        data: form_data,
+                        dataType: "JSON",
+                        success: function(response) {
+                            if(response.trim() == "success") {
+                                sessionStorage.setItem("user-id", form_data.user_id);
+                                $('#msg').html("<p style='color:green; font-weight:bold'>로그인 성공!</p>");
+
+                            } else {
+                                //alert("아이디 또는 비밀번호가 틀렸습니다.")
+                                //return false
+                                $('#msg').html("<p style='color:red'>아이디 또는 비밀번호가 잘못되었습니다.</p>");
+                            }
+
+                        },
+                        error: function() {
+                            $('#msg').html("<h2>try again! </h2>");
+                        }
+
+                    });
+
+                });
+
+            });
+
+        </script>
+    </body>
+</html>
