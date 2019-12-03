@@ -5,89 +5,40 @@ import csv
 pg_local = {
     'host':"localhost",
     'user':"postgres",
-    'dbname':"dbA2",
+    'dbname':"dbTerm",
     'password':"Ska25zns!"
 }
 
 #postgres://dbuser:1234@postgres/dbapp
 #localhost == 127.0.0.1
-#postgres://postgress:비번@127.0.0.1/postgres
+#postgres://postgress:빕번@127.0.0.1/postgres
 
 db_connector = pg_local 
 
 connect_string = "host={host} user={user} dbname={dbname} password={password}".format(
     **db_connector)
 
-# def read_tables(word):
-def read_names(word):
-    connect = pg.connect(connect_string)
-    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    sql = f'''SELECT * FROM phonebook WHERE name like \'{word}%\';
-    '''
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    connect.close()
-    return result
-
-def insert_data(name,phone):
-    connect = pg.connect(connect_string)
-    cursor = connect.cursor()
-    sql = f'''INSERT INTO phonebook (name,phone)
-            VALUES(\'{name}\', \'{phone}\');
-    '''
-    cursor.execute(sql)
-    connect.commit()
-    connect.close()
-    return "ok"
-
-def update_data(index, name, phone):
-    connect = pg.connect(connect_string)
-    cursor = connect.cursor()
-    sql = f'''UPDATE phonebook SET name = \'{name}\', phone = \'{phone}\'
-            WHERE idx = \'{index}\';
-    '''
-    cursor.execute(sql)
-    connect.commit()
-    connect.close()
-    return "ok"
-
-def select_data(index):
-    connect = pg.connect(connect_string)
-    cursor = connect.cursor()
-    sql = f'''SELECT * FROM phonebook WHERE idx = \'{index}\';'''
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    connect.close()
-
-    return result
-
-
-def delete_data(index):
-    connect = pg.connect(connect_string)
-    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    sql = f'''DELETE FROM phonebook WHERE idx = \'{index}\';
-    '''
-    cursor.execute(sql)
-    connect.commit()
-    connect.close()
-    return "ok"
-
-# update phonebook set name = ..., phone = ... where idx = ...
-# insert into phonebook (name, phone) values (..., ...)
-
 def initialize():
     # Initialize table
-    sql = f'''CREATE TABLE if not exists phonebook (
+    sql = f'''CREATE TABLE if not exists member (
             idx bigserial primary key,
             name varchar(40) NOT NULL,
-            phone varchar(11) NOT NULL
+            phone varchar(11) NOT NULL,
+            local varchar(40) NOT NULL,
+            domain varchar(40) NOT NULL,
+            passwd varchar(20) NOT NULL,
+            lat varchar(30),
+            lng varchar(30),
+            type varchar(10) 
             );
         '''
+    print("SQL Try!")
     
     try:
         connect = pg.connect(connect_string)
         cursor = connect.cursor()
         cursor.execute(sql)
+        print("SQL Success!")
 
         connect.commit()
         connect.close()
@@ -96,28 +47,37 @@ def initialize():
     
     connect = pg.connect(connect_string)
     cursor = connect.cursor()
-    cursor.execute('''select count(*) as cnt from phonebook''')
+    cursor.execute('''select count(*) as cnt from member''')
     result = cursor.fetchall()
 
     #table에 data가 없는 경우 초기 데이터 contact.csv을 table에 copy
     if result[0][0] <= 0 :
-        f = open(r'C:\Users\llewr\Database\project_v2\contact.csv', 'r', encoding='UTF8')
-        cursor.copy_from(f, "phonebook", sep=',', columns=['name', 'phone'])
+        f = open(r'C:\Users\llewr\Database\term_project\customers.csv', 'r', encoding='UTF8')
+        cursor.copy_from(f, "member", sep=',', columns=['name', 'phone','local','domain','passwd','lat','lng'])
         #파일 객체 table name seperator(delim) [column옵션] 
         f.close()
 
         connect.commit()
-
-        #f = open('contact.csv','r',encoding='utf-8')
-        #reader = csv.reader(f)
-        #i = 0
-        #for line in reader:
-        #    if i == 0:
-        #        i = i + 1
-        #        continue
-
-        #   sql = f'''insert into phonebook (name, phone) values ('{line[0]}', '{line[1]}')'''
-        #cursor.execute(sql)
-        #connect.commit()
     
     connect.close()
+
+def insert_data(data):
+    print(data)
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor()
+    sql = f'''INSERT INTO member (name,phone,local,domain,passwd,type)
+            VALUES(\'{data["name"]}\', \'{data["phone"]}\',\'{data["local"]}\',\'{data["domain"]}\',\'{data["passwd"]}\',\'{data["type"]}\');
+    '''
+    cursor.execute(sql)
+    connect.commit()
+    connect.close()
+    return "ok"
+
+def validate_data(data):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    sql = f'''select * from member where concat(local, \'@\', domain) = \'{data["email"]}\' AND passwd = \'{data["password"]}\''''
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    connect.close()
+    return result
