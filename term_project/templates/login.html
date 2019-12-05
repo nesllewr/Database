@@ -21,13 +21,6 @@
             <form action="/" method="post">
                 <div class="box">
                     <h1>Login Form</h1>
-                    <div class="check-login">
-                        <form name="check-info" method="post">
-                            <input type="radio" name="client" value="환자" checked> 환자
-                            <input type="radio" name="client" value="상점"> 상점
-                            <input type="radio" name="client" value="병원"> 병원
-                        </form>
-                    </div>
                     <input class="username" name="email" id="user-email" type="email" placeholder="User e-mail">
                     <input class="username" name="pw" id="user-pw" type="password" placeholder="Password">
                     
@@ -58,7 +51,6 @@
                         alert("아이디/비밀번호를 입력하세요.")
                         return false
                     }
-
                     $.ajax({
                         type: "POST",
                         url: "/login",
@@ -66,14 +58,15 @@
                         success: function(res) {
                             if(res.trim() == "ok") {
                                 alert("로그인 되었습니다.");
-                                location.href = '/main'                                
-                                $('#msg').html("<p style='color:green; font-weight:bold'>로그인 성공!</p>");
+                                location.href = '/mode'                                 
+                            }else if(res.trim()=="type"){
+                                alert("사용자 타입 설정이필요합니다.")
+                                location.href='/settype'
 
-                            } else {
-                                //alert("아이디 또는 비밀번호가 틀렸습니다.")
-                                //return false
-                                $('#msg').html("<p style='color:red'>이메일 또는 비밀번호가 잘못되었습니다.</p>");
-                            }
+                            }else {
+                                alert("아이디 또는 비밀번호가 틀렸습니다.")
+                                return false
+                                }
 
                         },
                         error: function() {

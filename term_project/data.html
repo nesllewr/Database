@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+<script>
+//http://apis.data.go.kr/B551182/hospInfoService/getHospBasisList?serviceKey=XhfOkkV4VVmhR%2F2YKF%2FPmSlse%2F94onDOCkeG%2FrZ6zdShdhyS%2FbpcVXd1F78UWW4NhX4DIDVrltg1YisMdslXaw%3D%3D&pageNo=1&numOfRows=10&sidoCd=110000&sgguCd=110019&emdongNm=%EC%8B%A0%EB%82%B4%EB%8F%99&yadmNm=%EC%84%9C%EC%9A%B8%EC%9D%98%EB%A3%8C%EC%9B%90&zipCd=2010&clCd=11&dgsbjtCd=01&xPos=127.09854004628151&yPos=37.6132113197367&radius=3000
+var xhr = new XMLHttpRequest();
+var url = 'http://apis.data.go.kr/B551182/hospInfoService/getHospBasisLis'
+var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'XhfOkkV4VVmhR%2F2YKF%2FPmSlse%2F94onDOCkeG%2FrZ6zdShdhyS%2FbpcVXd1F78UWW4NhX4DIDVrltg1YisMdslXaw%3D%3D';
+
+console.log(url + queryParams);
+ /*Service Key*/
+// queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('-'); /*서비스키*/
+// queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /*페이지번호*/
+// queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /*한 페이지 결과 수*/
+// queryParams += '&' + encodeURIComponent('sidoCd') + '=' + encodeURIComponent('110000'); /*시도코드*/
+// queryParams += '&' + encodeURIComponent('sgguCd') + '=' + encodeURIComponent('110019'); /*시군구코드*/
+// queryParams += '&' + encodeURIComponent('emdongNm') + '=' + encodeURIComponent('신내동'); /*읍면동명*/
+// queryParams += '&' + encodeURIComponent('yadmNm') + '=' + encodeURIComponent('서울의료원'); /*병원명 (UTF-8 인코딩 필요)*/
+// queryParams += '&' + encodeURIComponent('zipCd') + '=' + encodeURIComponent('2010'); /*2010:종합병원, 2030:병원, 2040:요양병원, 2050:치과, 2060:한방, 2070:의원, 2080:보건기관, 2090:조산원*/
+// queryParams += '&' + encodeURIComponent('clCd') + '=' + encodeURIComponent('11'); /*종별코드*/
+// queryParams += '&' + encodeURIComponent('dgsbjtCd') + '=' + encodeURIComponent('01'); /*진료과목코드*/
+// queryParams += '&' + encodeURIComponent('xPos') + '=' + encodeURIComponent('127.09854004628151'); /*x좌표(소수점 15)*/
+// queryParams += '&' + encodeURIComponent('yPos') + '=' + encodeURIComponent('37.6132113197367'); /*y좌표(소수점 15)*/
+// queryParams += '&' + encodeURIComponent('radius') + '=' + encodeURIComponent('3000'); /*단위 : 미터(m)*/
+// xhr.open('GET', url + queryParams);
+// xhr.onreadystatechange = function () {
+//     if (this.readyState == 4) {
+//         alert('Status: '+this.status+' Headers: '+JSON.stringify(this.getAllResponseHeaders())+' Body: '+this.responseText);
+//     }
+// };
+
+// xhr.send('');
+</script>
+</body>
+</html>
