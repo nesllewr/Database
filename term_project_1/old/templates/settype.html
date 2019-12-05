@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+    <head>
+        <title>DB</title>
+        <link rel="stylesheet" href="/static/login.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="w100">
+                <h1>
+                    <a href="/logout" style="color:aliceblue;">HYU DB Term Project - Dr.HYU</a>
+                </h1>
+            </div>
+        </header> 
+        
+        <div id="absoluteCenteredDiv">
+            <form action="/" method="post">
+                <div class="box">
+                    <h1> check user type</h1>
+                    <div class="check-login">
+                        <form name="check-info" method="post">
+                            <input type="checkbox" name="user-type" value="환자">환자
+                            <input type="checkbox" name="user-type" value="병원">병원
+                            <input type="checkbox" name="user-type" value="약국/기타">약국/기타
+                        </form>
+                    </div>
+                    <button type="submit" id="submit" class="btn-login">type setting</button>
+                </div>
+            </form>
+            <div id="msg"></div>
+              
+            <footer>
+                <div>
+                    HYU DB Term Project
+                </div>
+            </footer>
+        </div>      
+    </body>
+        <script>
+            $(document).ready(function() {
+                $('form').submit(function(e) {
+                    e.preventDefault();
+                    var data = {
+                        type: []
+                    };
+
+                    $("input[name=user-type]").each(function(e, el) {
+                        if($(el).is(":checked")) data.type.push(e + 1);
+                    });
+                    if(data.type.length <= 0){
+                        alert("사용자 타입을 체크해주세요.");
+                        return false;
+                    }
+
+                    data.type = data.type.join("/");
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: "/typesave",
+                        data: data,
+                        success: function(res) {
+                            if(res.trim() == "ok") {
+                                alert("사용자 타입이 설정 되었습니다.");
+                                location.href = '/mode'                                
+                            } else {
+                                //alert("아이디 또는 비밀번호가 틀렸습니다.")
+                                //return false
+                                $('#msg').html("<p style='color:red'>사용자 타입을 설정해주세요.</p>");
+                            }
+
+                        },
+                        error: function() {
+                            $('#msg').html("<h2>try again! </h2>");
+                        }
+
+                    });
+
+                });
+
+            });
+
+        </script>
+    </body>
+</html>

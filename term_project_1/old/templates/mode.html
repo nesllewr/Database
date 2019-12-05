@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+    <head>
+        <title>DB</title>
+        <link rel="stylesheet" href="/static/login.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="w100">
+                <h1>
+                    <a href="/" style="color:aliceblue;">HYU DB Term Project - Dr.HYU</a>
+                </h1>
+            </div>
+        </header> 
+        
+        <div id="absoluteCenteredDiv">
+            <form action="/logout" method="post">
+                <div class="box">
+                    <h1>set user type in {{typeset}} </h1>
+                    <div class="check-login">
+                        <form name="check-info" method="post">                            
+                            <input type="radio" name="client" value="환자"> 환자
+                            <input type="radio" name="client" value="약국"> 약국
+                            <input type="radio" name="client" value="병원"> 병원
+                        </form>
+                    </div>
+                    <button type="submit" id="submit" class="btn-login">type setting</button>
+                </div>
+            </form>
+            <div id="msg"></div>
+              
+            <footer>
+                <div>
+                    HYU DB Term Project
+                </div>
+            </footer>
+        </div>      
+    </body>
+        <script>
+            $(document).ready(function() {
+                $('form').submit(function(e) {
+                    e.preventDefault();
+
+                    var data = {
+                        checkedtype: []
+                    };
+
+                    $("input[name=client]").each(function(e, el) {
+                        if($(el).is(":checked")) data.checkedtype.push(e + 1);
+                    });
+
+                    if(data.checkedtype.length <= 0){
+                        alert("사용자 타입을 체크해주세요.");
+                        return false;
+                    }
+                
+                    $.ajax({
+                        type: "POST",
+                        url: "/typecheck",
+                        data : data,
+                        success: function(res) {
+                            if(res.trim() == '1') {
+                                alert("사용자 모드(환자)가 설정 되었습니다.");
+                                location.href = '/patient'                                
+                            } else if(res.trim()=='2'){
+                                alert("사용자 모드(병원)가 설정 되었습니다.");
+                                location.href = '/hospital'
+                            } else if(res.trim()=='3'){
+                                alert("사용자 모드(약국)가 설정 되었습니다.");
+                                location.href = '/pharmacy'
+                            } else{
+                                $('#msg').html("<p style='color:red'>가능한 사용자 모드를 설정해주세요.</p>");
+                            }
+                        },
+                        error: function() {
+                            $('#msg').html("<h2>try again! </h2>");
+                        }
+
+                    });
+                });
+
+            });
+
+        </script>
+    </body>
+</html>

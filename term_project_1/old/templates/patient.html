@@ -1,0 +1,37 @@
+{% extends 'template.html' %}
+{% block content %}
+<section>
+        <div class="w100">
+            <div class="info">
+                <form action="/data" method="post">
+                    <input type="text" id="search" name="search" placeholder="검색어를 입력해주세요">
+                    <button type="submit" id="submit" class="btn">검색</button>
+                </form>
+                <p class="resultCnt">
+                    <b>Total: <span>0</span> </b>
+                </p>
+            </div>
+            <br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Name</th>
+                        <th>Number</th>
+                        <th>수정</th>
+                        <th>삭제</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5">검색 결과가 표시됩니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
+<script>
+
+</script>
+{% endblock %}
