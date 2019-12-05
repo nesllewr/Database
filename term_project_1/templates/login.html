@@ -1,0 +1,26 @@
+{% extends 'template.html' %}
+{% block content %}
+
+{% if session.get("logined") == True: %}
+<script>
+$(function() {
+    alert("이미 로그인 중입니다.");
+    location.href = "/";
+});
+</script>
+{% endif %}
+
+<form action="/loginok" method="post">
+    <ul>
+        <li>
+            <input type="text" name="id" id="id" placeholder="아이디">
+        </li>
+        <li>
+            <input type="password" name="pw" id="pw" placeholder="비밀번호">
+        </li>
+    </ul>
+    <div>
+        <button type="submit">로그인</button>
+    </div>
+</form>
+{% endblock %}

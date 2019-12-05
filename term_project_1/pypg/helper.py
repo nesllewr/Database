@@ -51,7 +51,7 @@ def initialize():
     # import customer.csv(member data) if member table is empty
     memberCnt = query.select({
         "cols": "count(*) as cnt",
-        "table": "member"
+        "tableName": "member"
     })[0][0]
     
     if memberCnt <= 0:
@@ -64,7 +64,7 @@ def initialize():
     # import hospital data from API if hospital table is empty
     hospitalCnt = query.select({
         "cols": "count(*) as cnt",
-        "table": "hospital"
+        "tableName": "hospital"
     })[0][0]
     
     if hospitalCnt <= 0:
@@ -107,7 +107,7 @@ def initialize():
             
             idx = query.select({
                 "cols": "idx",
-                "table": "member",
+                "tableName": "member",
                 "where": "local = '" + data["local"] + "'"
             })[0][0]
             
@@ -116,3 +116,16 @@ def initialize():
                 "cols": "FK_member, name, docCnt, subject, stime, etime, holiday",
                 "values": "'" + str(idx) + "', '" + data["name"] + "', '" + str(data["docCnt"]) + "', '" + data["subject"] + "', '" + data["stime"] + "', '" + data["etime"] + "', '" + str(data["holiday"]) + "'"
             })
+
+def validateAccount(data):
+    member = query.select({
+        "tableName": "member",
+        "cols": "*",
+        "where": "concat(local, '@', domain) = '" + data["id"] + "' and pw = '" + data["pw"] + "'"
+    })
+    
+    if len(member) <= 0:
+        return False
+    else:
+        return True
+    

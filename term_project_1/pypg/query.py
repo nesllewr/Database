@@ -27,7 +27,7 @@ def createTable(tableName, cols):
         print(e)
 
 def select(data):
-    sql = " select " + data["cols"] + " from " + data["table"]
+    sql = " select " + data["cols"] + " from " + data["tableName"]
     
     if "where" in data:
         sql += " where " + data["where"]

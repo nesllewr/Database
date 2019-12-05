@@ -1,0 +1,13 @@
+{% extends 'template.html' %}
+{% block content %}
+{% if result == False: %}
+<script>
+    alert("이메일 또는 비밀번호가 일치하지 않습니다.");
+    location.href = "/login";
+</script>
+{% else: %}
+<script>
+    location.href = "/";
+</script>
+{% endif %}
+{% endblock %}
