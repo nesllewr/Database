@@ -1,0 +1,112 @@
+{% extends 'template.html' %}
+{% block content %}
+
+
+<section>
+    <div class="w100">
+        <!-- 127.0.0.1:5000/save -->
+        <form action="/reservetime" id="register" method="post">
+            날짜
+            <input type="date" id="bday" name="bday" class="input" value="2019-12-06" min="2019-12-05">
+        
+            시간
+            <input type="time" id="btime" name="btime" class="input" value="19:00">
+            <button class="btn" type="submit" id="submit">예약하기</button>
+        </form>
+    </div>
+</section>
+
+<script>
+var idx = null;
+$(function(){
+    var today = new Date();
+    
+    var day = today.getDate();
+    if(day < 10) day = "0" + day;
+    var month = today.getMonth() + 1;
+    if(month < 10) month = "0" + month;
+    
+    $("#bday").attr("min", today.getFullYear() + "-" + month + "-" + day);
+    
+    var idx = null;
+    var where = null;
+    var url = new URL(location.href);
+    where = url.searchParams.get("where")
+    idx = url.searchParams.get("idx");
+    console.log(where)
+    console.log(idx)
+    $.ajax({
+        url: "/selectTime",
+        type: "post",
+        data: {
+            where : where,
+            idx: idx
+        },
+        success: function(data) {
+            data = JSON.parse(data);
+            data = data[0];
+            var work = data[6].split("/");
+            $("#bday").attr({"data-holiday":work[0]});
+            $("#btime").attr({
+                "data-stime": work[1],
+                "data-etime": work[2]
+            });
+        }
+    });
+
+    $("form").on("submit", function(e) {
+        e.preventDefault();
+        
+        var bday = $("#bday").val();
+        var btime = $("#btime").val();
+        var holiday = $("#bday").attr("data-holiday");
+        var stime = $("#btime").attr("data-stime");
+        var etime = $("#btime").attr("data-etime");
+
+        var d = new Date(bday);
+        var weekday = d.getDay();
+
+        if(weekday==holiday){
+            alert("휴일입니다. 다른날은 선택해주세요.")
+            return false;
+        }
+
+        var start = new Date(bday+" "+stime+":00");
+        var end = new Date(bday+" "+etime+":00");
+        var reserve = new Date(bday+" "+btime+":00");
+
+        if(start.getTime()<= reserve.getTime()&&end.getTime() >= reserve.getTime()){
+            alert("영업 시간이 아닙니다. 다른 시간을 선택해주세요.")
+            return false;
+        }
+
+        $.ajax({
+            url:'/reservetime',
+            type:'post',
+            data:{
+                where:where,
+                idx: idx,
+                bday : bday,
+                btime : btime
+            },
+            success : function(data){
+                alert("예약이 완료되었습니다.");
+                location.href = '/';
+            },
+            error:function(){
+                alert("try again");
+            }
+        });
+    });
+});   
+    </script>
+
+{% if session['mode'] != '1' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script>
+{%endif%}
+<script></script>
+
+{% endblock %}
