@@ -7,10 +7,10 @@
         <!-- 127.0.0.1:5000/save -->
         <form action="/reservetime" id="register" method="post">
             날짜
-            <input type="date" id="bday" name="bday" class="input" value="2019-12-06" min="2019-12-05">
+            <input type="date" id="bday" name="bday" class="input" value="2019-12-07" min="2019-12-05">
         
             시간
-            <input type="time" id="btime" name="btime" class="input" value="19:00">
+            <input type="time" id="btime" name="btime" class="input" value="03:01">
             <button class="btn" type="submit" id="submit">예약하기</button>
         </form>
     </div>
@@ -75,28 +75,32 @@ $(function(){
         var end = new Date(bday+" "+etime+":00");
         var reserve = new Date(bday+" "+btime+":00");
 
-        if(start.getTime()<= reserve.getTime()&&end.getTime() >= reserve.getTime()){
+// [UPDATE]
+//###############################################################################################
+        // !(start.getTime() <= reserve.getTime() <= end.getTime()) = not between
+        if(!(start.getTime() <= reserve.getTime() && reserve.getTime() <= end.getTime())){
             alert("영업 시간이 아닙니다. 다른 시간을 선택해주세요.")
             return false;
         }
-
-        $.ajax({
-            url:'/reservetime',
-            type:'post',
-            data:{
-                where:where,
-                idx: idx,
-                bday : bday,
-                btime : btime
-            },
-            success : function(data){
-                alert("예약이 완료되었습니다.");
-                location.href = '/';
-            },
-            error:function(){
-                alert("try again");
-            }
-        });
+//
+//        $.ajax({
+//            url:'/reservetime',
+//            type:'post',
+//            data:{
+//                where:where,
+//                idx: idx,
+//                bday : bday,
+//                btime : btime
+//            },
+//            success : function(data){
+//                alert("예약이 완료되었습니다.");
+//                location.href = '/';
+//            },
+//            error:function(){
+//                alert("try again");
+//            }
+//        });
+//###############################################################################################
     });
 });   
     </script>
