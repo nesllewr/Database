@@ -1,4 +1,16 @@
 
+#map > div div { background: none !important; border: none !important;}
+#map2 > div div { background: none !important; border: none !important;}
+.tooltip {
+    background: rgba(0, 0, 0, 0.7) !important;
+    color: white !important;
+    padding: 5px !important;
+    z-index: 500 !important;
+    font-size: 0.95em !important;
+    border-radius: 2px !important;
+    box-sizing: border-box !important;
+}
+
 .input {
     border-radius: 10px;
     height : 30px;
@@ -19,4 +31,14 @@
 
 .btn.btn-red {
     background: #d85a5a;
+}
+.btn.btn-blue {
+    background: #4637b4;
+}
+
+
+.info {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
 }

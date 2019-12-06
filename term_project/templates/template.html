@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/index.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <title>DBMS Term Project</title>
 </head>
 <body>
@@ -11,7 +13,30 @@
         <div class="w100">
             <h1>
                 <a href="/logout" style="text-decoration: none; color:black;">Dr.HYU </a>
-            </h1>
+            </h1>            
+            <nav>
+                <ul>
+                    <li>
+                        <a href="/mode">MODE change</a>
+                    </li>
+                    <li>
+                        <a href="/logout">로그아웃</a>
+                    </li>
+                    {% if session['mode'] == '1': %}
+                    <li>
+                        <a href="/patient">Patient</a>
+                    </li>
+                    {% elif session['mode'] == '2': %}
+                    <li>
+                        <a href="/hospital">Hospital</a>
+                    </li>
+                    {% elif session['mode'] == '3' %}
+                    <li>
+                        <a href="/pharmacy">Pharmacy</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
         </div>
     </header> 
 {% block content %}

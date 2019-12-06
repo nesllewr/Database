@@ -1,7 +1,12 @@
 {% extends 'template.html' %}
 {% block content %}
 pharmacy
+
+{% if session['mode'] != '3' : %}
 <script>
-    
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
 </script>
+{%endif%}
+
 {% endblock %}

@@ -1,7 +1,169 @@
 {% extends 'template.html' %}
 {% block content %}
-hospital
+
+
+<section>
+    <div class="w100">
+        <div class="info">
+            <button type="button" id="hosinfo" class="btn">병원정보 불러오기</button>
+        </div>
+        <br>
+        <table class="hospital">
+            <thead>
+                <tr>
+                    <th>병원 이름</th>
+                    <th>전문의 의원 수</th>
+                    <th>진료과목</th>
+                    <th>위도</th>
+                    <th>경도</th>
+                    <th>주소</th>
+                    <th>휴일</th>
+                    <th>open time</th>
+                    <th>close time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="9">병원 정보가 나타납니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+<br>
+<br>
+<br>
+<section>
+    <div class="info">
+        <form action="/selectpat" method="post" class="patientForm"> 
+            <select class="input mode" name="mode"> 
+                <option id="surround" selected="selected" value="all"> 
+                    모두
+                </option> 
+                <option value="paname"> 
+                    이름
+                </option> 
+                <option value="paphone"> 
+                    번호
+                </option> 
+                <option value="date"> 
+                    날짜
+                </option> 
+            </select>
+            <input type="text" name="search" class="input search" placeholder="검색어를 입력해주세요">
+            <button type="submit" id="submit" class="btn">검색</button>
+        </form> 
+    </div>
+</section>
+<section>
+    <div class="w100">
+        <table class="patient-info">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>예약자 이름</th>
+                    <th>전화 번호</th>
+                    <th>예약 시간</th>
+                    <th>처방</th>
+                    <th>삭제</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6">예약 환자 정보가 나타납니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+    
+
 <script>
-alert("Hello World!");
+    //버튼 클릭시 병원 정보 불러오기
+    $(document).ready(function(){
+        $("#hosinfo").on("click", function() {
+        var holiday = ["일", "월", "화", "수", "목", "금", "토"];
+            $.ajax({
+                url : "/checkhosp",
+                data:{},
+                type : "POST",
+                success : function(data){
+                    data = JSON.parse(data);
+                    console.log(data);
+                    var work = data.workingtime.split("/");
+                    var tbody = "";
+                    tbody += "<tr>";
+                    tbody += "<td>"+ data.name +"</td>";
+                    tbody += "<td>"+ data.doccnt +"</td>";
+                    tbody += "<td>"+ data.subject +"</td>";
+                    tbody += "<td>"+ data.lat +"</td>";
+                    tbody += "<td>"+ data.lng +"</td>";
+                    tbody += "<td>"+ data.addr +"</td>";   
+                    tbody += "<td>" + holiday[parseInt(work[0])] + "</td>";
+                    tbody += "<td>오전 "+ work[1] +"</td>";
+                    tbody += "<td>오후 "+ work[2] +"</td>";
+                    tbody += "</tr>";
+                    
+                    $(".patinet-info tbody").html(tbody);
+                }
+                
+            });
+        }); 
+    });
 </script>
+
+<script>
+$(".patientForm").submit(function(e) {
+    e.preventDefault();
+
+    var mode = $(".patientForm .mode").val();
+    var word = $(".patientForm .search").val();
+
+    console.log(mode);
+
+    $.ajax({
+        url: "/selectpat",
+        data: {
+            mode : mode,
+            word: word
+        },
+        type: "post",
+        success: function(data) {
+            data = JSON.parse(data);
+            var tbody = "";
+
+            if(data.length <= 0) {
+                tbody += "<tr>";
+                tbody += "<td colspan='6'>검색 결과가 없습니다.</td>";
+                tbody += "</tr>";
+            } else {
+                $(data).each(function(e, el) {
+                    tbody += "<tr>";
+                    tbody += "<td>"+ (e + 1) +"</td>";
+                    tbody += "<td>"+ el.name +"</td>";
+                    tbody += "<td>"+ el.phone +"</td>";
+                    tbody += "<td>"+ el.reserve +"</td>";
+                    tbody += "<td>"+ '<button class="reserbtn btn btn-red" name="reser" data-idx="'+el.idx+'">취소</button>'+"</td>";
+                    tbody += "<td>"+ '<button class="updbtn btn btn-blue" name="update" data-idx="'+el.idx+'">처방</button>'+"</td>";
+                    tbody += "</tr>";
+                });
+            }
+            $(".patient-info tbody").html(tbody);
+            
+        }
+    });
+});
+
+
+</script>
+
+
+{% if session['mode'] != '2' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script>
+{%endif%}
+<script></script>
+
 {% endblock %}

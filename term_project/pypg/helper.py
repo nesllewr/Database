@@ -69,6 +69,7 @@ def initialize():
             subject varchar(30) NOT NULL,
             dist text,
             workingTime text,
+            addr text,
             foreign key(FK_member) references member(idx) on delete cascade on update cascade
             );
         '''
@@ -105,8 +106,51 @@ def initialize():
         connect.commit()
         connect.close()
     except pg.OperationalError as e:
+        print(e) 
+    
+    sql = f'''CREATE TABLE if not exists rehospital (
+            idx bigserial primary key,
+            FK_member integer,
+            FK_hospital integer,
+            rtime timestamp,          
+            foreign key(FK_member) references member(idx) on delete cascade on update cascade
+            );
+        '''
+    print("SQL Try!")
+    
+    try:
+        connect = pg.connect(connect_string)
+        cursor = connect.cursor()
+        cursor.execute(sql)
+        print("SQL Success!")
+
+        connect.commit()
+        connect.close()
+    except pg.OperationalError as e:
         print(e)
     
+    sql = f'''CREATE TABLE if not exists repharmacy (
+            idx bigserial primary key,
+            FK_member integer,
+            FK_pharmacy integer,
+            rtime timestamp,         
+            foreign key(FK_member) references member(idx) on delete cascade on update cascade
+            );
+        '''
+    print("SQL Try!")
+    
+    try:
+        connect = pg.connect(connect_string)
+        cursor = connect.cursor()
+        cursor.execute(sql)
+        print("SQL Success!")
+
+        connect.commit()
+        connect.close()
+    except pg.OperationalError as e:
+        print(e)
+    
+
     connect = pg.connect(connect_string)
     cursor = connect.cursor()
     cursor.execute('''select count(*) as cnt from member''')
@@ -172,6 +216,7 @@ def initialize():
             docCnt = row["sdrCnt"]
             subject = subjects[random.randint(0, 6)]
             dist = row["distance"]
+            addr = row["addr"]
             # 0: 일요일 ~ 6: 토요일
             workingTime = str(random.randint(0, 6)) + "/" + opentime[random.randint(0, 4)] + "/" + endtime[random.randint(0, 4)]
 
@@ -183,7 +228,7 @@ def initialize():
             cursor.execute(sql)
             idx = cursor.fetchall()[0][0]
 
-            sql = f'''insert into hospital (fk_member, name, docCnt, subject, dist, workingTime) values (\'{idx}\', \'{name}\', \'{docCnt}\', \'{subject}\', \'{dist}\', \'{workingTime}\')'''
+            sql = f'''insert into hospital (fk_member, name, docCnt, subject, dist, workingTime, addr) values (\'{idx}\', \'{name}\', \'{docCnt}\', \'{subject}\', \'{dist}\', \'{workingTime}\', \'{addr}\')'''
             cursor.execute(sql)
             connect.commit()
 
@@ -230,8 +275,8 @@ def insert_data(data):
     print(data)
     connect = pg.connect(connect_string)
     cursor = connect.cursor()
-    sql = f'''INSERT INTO member (name,phone,local,domain,passwd,type)
-            VALUES(\'{data["name"]}\', \'{data["phone"]}\',\'{data["local"]}\',\'{data["domain"]}\',\'{data["passwd"]}\',\'{data["type"]}\');
+    sql = f'''INSERT INTO member (name,phone,local,domain,passwd,lat,lng,type)
+            VALUES(\'{data["name"]}\', \'{data["phone"]}\',\'{data["local"]}\',\'{data["domain"]}\',\'{data["passwd"]}\',\'37.5585146\',\'127.0331892\',\'{data["type"]}\');
     '''
     cursor.execute(sql)
     connect.commit()
@@ -247,6 +292,16 @@ def validate_data(data):
     connect.close()
     return result
 
+def get_datatype(local, domain):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    sql = f'''select * from member where local = \'{local}\' AND domain=\'{domain}\''''
+    cursor.execute(sql)
+    result = cursor.fetchall()[0]
+    connect.close()
+    return result
+
+
 def update_data(data,local, domain):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -255,3 +310,100 @@ def update_data(data,local, domain):
     connect.commit()
     connect.close()
     return "ok"
+
+def select_hospital_data(mode,word,curlat, curlng) :
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    condition = ""
+    setlat = "37.5585146"
+    setlng = "127.0331892"
+    curlat = str(curlat)
+    curlng = str(curlng)
+    
+    if mode == "surround" :
+        condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5000 "
+    elif mode == "subject" :
+        condition = " hospital.subject LIKE '%" + word+"%'"
+    elif mode == "hospname" : 
+        condition = " hospital.name LIKE '%"+ word + "%'"
+
+    sql = " select * from hospital join member on member.idx = hospital.FK_member where" + condition + " limit 10 "
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    connect.close()
+    return result
+
+
+
+def select_pharmacy_data(mode,word,curlat, curlng) :
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    condition = ""
+    setlat = "37.5585146"
+    setlng = "127.0331892"
+    curlat = str(curlat)
+    curlng = str(curlng)
+    
+    if mode == "surround" :
+        condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5000 "
+    
+    sql = " select * from pharmacy join member on member.idx = pharmacy.FK_member where" + condition + " limit 10 "
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    connect.close()
+    return result
+
+def check_hospital_info(local,domain):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    sql = " select * from hospital join member on member.idx = hospital.FK_member where local = '" + local + "' and domain = '" + domain + "'"
+    print(sql)
+    # sql = " select * , "+condition+ "AS distance from hospital join member on member.idx = hospital.FK_member where local ='" + local + "'AND domain = '"+ domain +"' HAVING distance <= 5000 ORDER BY distance"
+
+    cursor.execute(sql)
+    result = cursor.fetchall()[0]
+    connect.close()
+    return result
+
+def select_patient_data(mode,word,table):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    sql = " select * from hospital join member on member.idx = hospital.FK_member where local = '" + local + "' and domain = '" + domain + "'"
+    print(sql)
+    # sql = " select * , "+condition+ "AS distance from hospital join member on member.idx = hospital.FK_member where local ='" + local + "'AND domain = '"+ domain +"' HAVING distance <= 5000 ORDER BY distance"
+
+    cursor.execute(sql)
+    result = cursor.fetchall()[0]
+    connect.close()
+    return result
+
+def get_workingtime(index,where):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor()
+    print(where)
+    sql = "SELECT * FROM "+where+" join member on member.idx = "+where+".FK_member WHERE member.idx = "+index+";"
+    #sql = f'''SELECT * FROM \'{where}\' join member on member.idx = \'{where}\'.FK_member WHERE member.idx = \'{index}\';'''
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    connect.close()
+    return result
+
+def reservation(tablename,hosid, userid, rhtime):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor()
+    userid = str(userid)
+    sql = "INSERT INTO re"+tablename+" (FK_"+tablename+", FK_member,rtime) VALUES('"+ hosid +"','"+userid+"','"+rhtime+"')"
+    cursor.execute(sql)
+    connect.commit()
+    connect.close()
+    return "ok"
+
+
+
+
+
+
+
+
+
+    
