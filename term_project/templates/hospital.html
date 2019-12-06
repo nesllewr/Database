@@ -4,9 +4,7 @@
 
 <section>
     <div class="w100">
-        <div class="info">
-            <button type="button" id="hosinfo" class="btn">병원정보 불러오기</button>
-        </div>
+
         <br>
         <table class="hospital">
             <thead>
@@ -79,9 +77,8 @@
     
 
 <script>
-    //버튼 클릭시 병원 정보 불러오기
+    //병원 정보 불러오기
     $(document).ready(function(){
-        $("#hosinfo").on("click", function() {
         var holiday = ["일", "월", "화", "수", "목", "금", "토"];
             $.ajax({
                 url : "/checkhosp",
@@ -89,7 +86,6 @@
                 type : "POST",
                 success : function(data){
                     data = JSON.parse(data);
-                    console.log(data);
                     var work = data.workingtime.split("/");
                     var tbody = "";
                     tbody += "<tr>";
@@ -104,55 +100,70 @@
                     tbody += "<td>오후 "+ work[2] +"</td>";
                     tbody += "</tr>";
                     
-                    $(".patinet-info tbody").html(tbody);
+                    $(".hospital tbody").html(tbody);
                 }
                 
             });
-        }); 
+        
     });
-</script>
+    //버튼 클릭시 예약 환자 정보 불러오기
+    $(".patientForm").submit(function(e) {
+        e.preventDefault();
 
-<script>
-$(".patientForm").submit(function(e) {
-    e.preventDefault();
+        var mode = $(".patientForm .mode").val();
+        var word = $(".patientForm .search").val();
+        console.log(word)
+        $.ajax({
+            url: "/selectpat",
+            data: {
+                mode : mode,
+                word: word,
+                where:"hospital"
+            },
+            type: "post",
+            success: function(data) {
+                data = JSON.parse(data);
+                var tbody = "";
 
-    var mode = $(".patientForm .mode").val();
-    var word = $(".patientForm .search").val();
-
-    console.log(mode);
-
-    $.ajax({
-        url: "/selectpat",
-        data: {
-            mode : mode,
-            word: word
-        },
-        type: "post",
-        success: function(data) {
-            data = JSON.parse(data);
-            var tbody = "";
-
-            if(data.length <= 0) {
-                tbody += "<tr>";
-                tbody += "<td colspan='6'>검색 결과가 없습니다.</td>";
-                tbody += "</tr>";
-            } else {
-                $(data).each(function(e, el) {
+                if(data.length <= 0) {
                     tbody += "<tr>";
-                    tbody += "<td>"+ (e + 1) +"</td>";
-                    tbody += "<td>"+ el.name +"</td>";
-                    tbody += "<td>"+ el.phone +"</td>";
-                    tbody += "<td>"+ el.reserve +"</td>";
-                    tbody += "<td>"+ '<button class="reserbtn btn btn-red" name="reser" data-idx="'+el.idx+'">취소</button>'+"</td>";
-                    tbody += "<td>"+ '<button class="updbtn btn btn-blue" name="update" data-idx="'+el.idx+'">처방</button>'+"</td>";
+                    tbody += "<td colspan='6'>검색 결과가 없습니다.</td>";
                     tbody += "</tr>";
-                });
+                } else {
+                    $(data).each(function(e, el) {
+                        console.log(data)
+                        tbody += "<tr>";
+                        tbody += "<td>"+ (e + 1) +"</td>";
+                        tbody += "<td>"+ el.name +"</td>";
+                        tbody += "<td>"+ el.phone +"</td>";
+                        tbody += "<td>"+ el.rtime +"</td>";
+                        tbody += "<td>"+ '<button class="updbtn btn btn-blue" name="update" data-idx="'+el.idx+'">처방</button>'+"</td>";
+                        tbody += "<td>"+ '<button class="delbtn btn btn-red" name="del" data-idx="'+el.idx+'">취소<f/button>'+"</td>";
+                        tbody += "</tr>";
+                    });
+                }
+                $(".patient-info tbody").html(tbody);
+                
             }
-            $(".patient-info tbody").html(tbody);
-            
-        }
+        });
+
+        $("body").on("click","delbtn",function(){
+            var idx = $(this).attr("data-idx");
+            var btn = $(this);
+            console.log("in delete")
+            $.ajax({
+                type: "post",
+                url: "/delete",
+                data: {
+                    idx: idx
+                },
+                success: function(data) {
+                    $(btn).parents("tr").remove();
+                }
+            });
+
+        });
     });
-});
 
 
 </script>

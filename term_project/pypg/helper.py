@@ -368,8 +368,21 @@ def check_hospital_info(local,domain):
 def select_patient_data(mode,word,table):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    sql = " select * from hospital join member on member.idx = hospital.FK_member where local = '" + local + "' and domain = '" + domain + "'"
-    print(sql)
+    condition=""
+    if mode == "paname" :
+        contion = "WHERE member.name LIKE '%" + word + "%'"
+    elif mode == "paphone" :
+        contion = "WHERE member.phone LIKE '%" + word + "%'"
+    elif mode =="date":
+        contion = ""
+    else :
+        condition =""
+
+    if table =="hospital":
+        sql = " select * from rehospital join member on member.idx = rehospital.FK_member "+ condition
+    elif table =="pharmacy":
+        sql = " select * from repharmacy join member on member.idx = repharmacy.FK_member "+ condition
+ 
     # sql = " select * , "+condition+ "AS distance from hospital join member on member.idx = hospital.FK_member where local ='" + local + "'AND domain = '"+ domain +"' HAVING distance <= 5000 ORDER BY distance"
 
     cursor.execute(sql)
@@ -377,10 +390,20 @@ def select_patient_data(mode,word,table):
     connect.close()
     return result
 
+def delete_data(index):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    sql = f'''DELETE FROM rehospital WHERE FK_hospital = \'{index}\';
+    '''
+    cursor.execute(sql)
+    connect.commit()
+    connect.close()
+    return "ok"
+
+
 def get_workingtime(index,where):
     connect = pg.connect(connect_string)
     cursor = connect.cursor()
-    print(where)
     sql = "SELECT * FROM "+where+" join member on member.idx = "+where+".FK_member WHERE member.idx = "+index+";"
     #sql = f'''SELECT * FROM \'{where}\' join member on member.idx = \'{where}\'.FK_member WHERE member.idx = \'{index}\';'''
     cursor.execute(sql)
