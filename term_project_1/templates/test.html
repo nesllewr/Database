@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; list-style: none; }
+    header { background: #2b85ed; color: white; padding: 50px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);}
+    header p { font-size: 0.9em; color: rgba(255, 255, 255, 0.7);}
+    section {background: #efefef; padding: 50px;}
+    section > div { background: white; margin-bottom: 30px; border-radius: 10px; padding: 20px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);}
+    section > div h2 { border-bottom: 1px solid #eee; margin-bottom: 15px; padding: 10px 0;}
+    .info { color: #555; margin-bottom: 15px; }
+    .tag {background: #2b85ed; color: white; font-size: 0.9em; display: inline-block; padding: 3px; border-radius: 5px; margin-right: 10px;}
+    .info li { margin-bottom: 5px;}
+    .patient { border-top: 1px solid #eee; padding: 15px 0;}
+    .patient h3 { color: #555; font-size: 0.99em; margin-bottom: 15px;}
+    .patient table { width: 100%; border-collapse: collapse;}
+    .patient table th { background: #555; color: white; font-size: 0.9em; padding: 10px 0;}
+    .patient table td { text-align: center; font-size: 0.9em; padding: 5px 0; border-bottom: 1px solid #eee;}
+    .patient table tr:nth-child(2n) { background: #efefef;}
+    
+</style>
+<body>
+<header>
+    <h1>병원통합시스템</h1>
+    <p>HYU Term Project V.01</p>
+</header>
+<!-- 병원 이름, 전문의 의원 수, 진료 과목: 복수 가능, 위치: 위도, 경도: 주소 / 현재 사용자와의 거리 진료시간(일별, 주별)-->
+<!-- 환자 정보: 현재 예약자(예약자 이름, 전화번호, 예약 시간) 처방하기 환자 정보와 처방 기록 -->
+<section>
+    <div>
+        <h2>한양대학병원</h2>
+        <ul class="info">
+            <li><span class="tag">진료 과목</span>치과, 내과, 외과</li>
+            <li><span class="tag">진료 시간</span>09:00 ~ 18:00 (일요일 휴무)</li>
+            <li><span class="tag">주소</span>서울특별시 성동구 왕십리로 222 한양대학병원 (위도: 127, 경도: 32, 현재 거리: 152km)</li>
+        </ul>
+        <div class="patient">
+            <h3>예약자 정보</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>이름</th>
+                        <th>전화번호</th>
+                        <th>예약 시간</th>
+                        <th>처방</th>
+                        <th>환자 정보</th>
+                        <th>처방 기록</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>user1</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>user2</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>user3</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>user4</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>user5</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>user6</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>user7</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>user8</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>user9</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>user10</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div>
+        <h2>고려대학병원</h2>
+        <ul class="info">
+            <li>진료 과목: 치과, 내과, 외과</li>
+            <li>진료 시간: 09:00 ~ 18:00 (일요일 휴무)</li>
+            <li>주소: 서울특별시 성동구 왕십리로 222 한양대학병원 (위도: 127, 경도: 32, 현재 거리: 152km)</li>
+        </ul>
+        <div class="patient">
+            <h3>예약자 정보</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>이름</th>
+                        <th>전화번호</th>
+                        <th>예약 시간</th>
+                        <th>처방</th>
+                        <th>환자 정보</th>
+                        <th>처방 기록</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>user1</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>user2</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>user3</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>user4</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>user5</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>user6</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>user7</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>user8</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>user9</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>user10</td>
+                        <td>010-4456-5707</td>
+                        <td>수요일 15:00</td>
+                        <td><button>처방하기</button></td>
+                        <td><button>환자정보열람</button></td>
+                        <td><button>처방기록열람</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>
