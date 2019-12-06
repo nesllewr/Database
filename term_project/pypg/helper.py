@@ -9,7 +9,7 @@ pg_local = {
     'host':"localhost",
     'user':"postgres",
     'dbname':"dbTerm",
-    'password':"Ska25zns!"
+    'password':"postgres1!"
 }
 
 #postgres://dbuser:1234@postgres/dbapp
@@ -158,7 +158,7 @@ def initialize():
 
     #table에 data가 없는 경우 초기 데이터 contact.csv을 table에 copy
     if result[0][0] <= 0 :
-        f = open(r'C:\Users\llewr\Database\term_project\customers.csv', 'r', encoding='UTF8')
+        f = open('customers.csv', 'r', encoding='UTF8')
         cursor.copy_from(f, "member", sep=',', columns=['name', 'phone','local','domain','passwd','lat','lng'])
         #파일 객체 table name seperator(delim) [column옵션] 
         f.close()
