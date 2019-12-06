@@ -19,6 +19,15 @@
 <script>
 var idx = null;
 $(function(){
+    var today = new Date();
+    
+    var day = today.getDate();
+    if(day < 10) day = "0" + day;
+    var month = today.getMonth() + 1;
+    if(month < 10) month = "0" + month;
+    
+    $("#bday").attr("min", today.getFullYear() + "-" + month + "-" + day);
+
     var idx = null;
     var where = null;
     var url = new URL(location.href);
@@ -36,7 +45,13 @@ $(function(){
         success: function(data) {
             data = JSON.parse(data);
             data = data[0];
-            var work = data[6].split("/");
+            console.log(data)
+            if(where=="hospital"){
+                var work = data[6].split("/");
+            }
+            else if(where=="pharmacy"){
+                var work=data[4].split("/");
+            }
             $("#bday").attr({"data-holiday":work[0]});
             $("#btime").attr({
                 "data-stime": work[1],
@@ -66,7 +81,7 @@ $(function(){
         var end = new Date(bday+" "+etime+":00");
         var reserve = new Date(bday+" "+btime+":00");
 
-        if(start.getTime()<= reserve.getTime()&&end.getTime() >= reserve.getTime()){
+        if(start.getTime() >  reserve.getTime() && end.getTime() < reserve.getTime()){
             alert("영업 시간이 아닙니다. 다른 시간을 선택해주세요.")
             return false;
         }
@@ -82,7 +97,7 @@ $(function(){
             },
             success : function(data){
                 alert("예약이 완료되었습니다.");
-                location.href = '/';
+                location.href = '/patient';
             },
             error:function(){
                 alert("try again");

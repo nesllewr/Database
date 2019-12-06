@@ -204,9 +204,18 @@ def checkhosp():
 def selectpat():
     mode = request.form["mode"]
     word = request.form["word"]
-    result = helper.select_patient_data(mode,word,word)
+    where = request.form["where"]
+    print(where)
+    result = helper.select_patient_data(mode,word,where)
     result = json.dumps(result)
     return result
+
+@app.route("/delete",methods=["POST"])
+def delete_reservation():
+    id = request.form['idx']
+    print(id)
+    helper.delete_data(id)
+    return "ok"
 
 @app.route("/reserve", methods=["GET"])
 def reserve():
@@ -234,6 +243,8 @@ def rhtime():
     print(rhtime)
     helper.reservation(where,hosid, session['idx'], rhtime)
     return "ok"
+
+
 
 
 if __name__ == "__main__":
