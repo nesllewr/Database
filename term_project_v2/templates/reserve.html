@@ -1,0 +1,128 @@
+{% extends 'template.html' %}
+{% block content %}
+
+
+<section>
+    <div class="w100">
+        <!-- 127.0.0.1:5000/save -->
+        <form action="/reservetime" id="register" method="post">
+            날짜
+            <input type="date" id="bday" name="bday" class="input">
+        
+            시간
+            <input type="time" id="btime" name="btime" class="input">
+            <button class="btn" type="submit" id="submit">예약하기</button>
+        </form>
+    </div>
+</section>
+
+<script>
+var idx = null;
+$(function(){
+    var today = new Date();
+    
+    var day = today.getDate();
+    if(day < 10) day = "0" + day;
+    var month = today.getMonth() + 1;
+    if(month < 10) month = "0" + month;
+    
+    $("#bday").attr("min", today.getFullYear() + "-" + month + "-" + day);
+
+    var idx = null;
+    var where = null;
+    var url = new URL(location.href);
+    where = url.searchParams.get("where")
+    idx = url.searchParams.get("idx");
+    $.ajax({
+        url: "/selectTime",
+        type: "post",
+        data: {
+            where : where,
+            idx: idx
+        },
+        success: function(data) {
+            data = JSON.parse(data);
+            data = data[0];
+            if(where=="hospital"){
+                $("#bday").attr({"data-holiday":data[8]});
+                $("#btime").attr({
+                    "data-stime": data[9],
+                    "data-etime": data[10]
+                });
+            }
+            else if(where=="pharmacy"){
+                $("#bday").attr({"data-holiday":data[6]});
+                $("#btime").attr({
+                    "data-stime": data[7],
+                    "data-etime": data[8]
+                });
+            }
+            
+        }
+    });
+
+    $("form").on("submit", function(e) {
+        e.preventDefault();
+        
+        var bday = $("#bday").val();
+        var btime = $("#btime").val();
+        var holiday = $("#bday").attr("data-holiday");
+        var stime = $("#btime").attr("data-stime");
+        var etime = $("#btime").attr("data-etime");
+
+        if(bday==""||btime==""){
+            alert("다시 입력해주세요")
+            return false;
+        }
+
+        var d = new Date(bday);
+        var weekday = d.getDay();
+        if(weekday==parseInt(holiday)){
+            alert("휴일입니다. 다른날은 선택해주세요.")
+            return false;
+        }
+
+        var start = new Date(bday+" "+stime+":00");
+        var end = new Date(bday+" "+etime+":00");
+        var reserve = new Date(bday+" "+btime+":00");
+
+
+        if(start.getTime() >  reserve.getTime() || end.getTime() < reserve.getTime()){
+            alert("영업 시간이 아닙니다. 다른 시간을 선택해주세요.")
+            return false;
+        }
+
+        $.ajax({
+            url:'/reservetime',
+            type:'post',
+            data:{
+                where:where,
+                idx: idx,
+                bday : bday,
+                btime : btime
+            },
+            success : function(data){
+                if(data.trim()=="true") {
+                    alert("예약이 완료되었습니다.");
+                    location.href = '/patient';
+                } else {
+                    location.href = '/choosepre';
+                }
+            },
+            error:function(){
+                alert("try again");
+            }
+        });
+    });
+});   
+    </script>
+
+{% if session['mode'] != '1' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script>
+{%endif%}
+<script></script>
+
+{% endblock %}

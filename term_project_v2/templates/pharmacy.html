@@ -8,9 +8,7 @@
         <table class="hospital">
             <thead>
                 <tr>
-                    <th>병원 이름</th>
-                    <th>전문의 의원 수</th>
-                    <th>진료과목</th>
+                    <th>약국 이름</th>
                     <th>위도</th>
                     <th>경도</th>
                     <th>주소</th>
@@ -21,7 +19,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="9">병원 정보가 나타납니다.</td>
+                    <td colspan="7">약국 정보가 나타납니다.</td>
                 </tr>
             </tbody>
         </table>
@@ -61,13 +59,14 @@
                     <th>예약자 이름</th>
                     <th>전화 번호</th>
                     <th>예약 시간</th>
-                    <th>처방</th>
-                    <th>삭제</th>
+                    <th>열람</th>
+                    <th>처방가능</th>
+                    <th>처방불가능</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="6">예약 환자 정보가 나타납니다.</td>
+                    <td colspan="7">예약 환자 정보가 나타납니다.</td>
                 </tr>
             </tbody>
         </table>
@@ -76,29 +75,27 @@
     
 
 <script>
-    //병원 정보 불러오기
+    //약국 정보 불러오기
     $(document).ready(function(){
         var holiday = ["일", "월", "화", "수", "목", "금", "토"];
             $.ajax({
-                url : "/checkhosp",
+                url : "/checkphar",
                 data:{},
                 type : "POST",
                 success : function(data){
                     console.log(data)
                     if(data.length > 2){
                         data = JSON.parse(data);
-                        var work = data.workingtime.split("/");
+                        //var work = data.workingtime.split("/");
                         var tbody = "";
                         tbody += "<tr>";
                         tbody += "<td>"+ data.name +"</td>";
-                        tbody += "<td>"+ data.doccnt +"</td>";
-                        tbody += "<td>"+ data.subject +"</td>";
                         tbody += "<td>"+ data.lat +"</td>";
                         tbody += "<td>"+ data.lng +"</td>";
                         tbody += "<td>"+ data.addr +"</td>";   
-                        tbody += "<td>" + holiday[parseInt(work[0])] + "</td>";
-                        tbody += "<td>오전 "+ work[1] +"</td>";
-                        tbody += "<td>오후 "+ work[2] +"</td>";
+                        tbody += "<td>" + holiday[parseInt(data.holiday)] + "</td>";
+                        tbody += "<td>(오전) "+ data.opent +"</td>";
+                        tbody += "<td>(오후) "+ data.closet +"</td>";
                         tbody += "</tr>";
                         
                         $(".hospital tbody").html(tbody);
@@ -120,7 +117,7 @@
             data: {
                 mode : mode,
                 word: word,
-                where:"hospital"
+                where:"pharmacy"
             },
             type: "post",
             success: function(data) {
@@ -132,14 +129,17 @@
                     tbody += "</tr>";
                 } else {
                     $(data).each(function(e, el) {
-                        tbody += "<tr>";
-                        tbody += "<td>"+ (e + 1) +"</td>";
-                        tbody += "<td>"+ el.name +"</td>";
-                        tbody += "<td>"+ el.phone +"</td>";
-                        tbody += "<td>"+ el.rtime +"</td>";
-                        tbody += "<td>"+ '<button type="button" class="prebtn btn btn-blue" name="prescript" data-idx="'+el.idx+'">처방</button>'+"</td>";
-                        tbody += "<td>"+ '<button type="button" class="delbtn btn btn-red" name="del" data-idx="'+el.idx+'">예약 취소<f/button>'+"</td>";
-                        tbody += "</tr>";
+                        $(el).each(function(e2, el2) {
+                            tbody += "<tr>";
+                            tbody += "<td>"+ (e + 1) +"</td>";
+                            tbody += "<td>"+ el2.name +"</td>";
+                            tbody += "<td>"+ el2.phone +"</td>";
+                            tbody += "<td>"+ el2.rtime +"</td>";
+                            tbody += "<td>"+ '<button type="button" class="readbtn btn" name="read" data-idx="'+el2.idx+'">열람</button>'+"</td>";
+                            tbody += "<td>"+ '<button type="button" class="posbtn btn btn-blue" name="pos" data-idx="'+el2.idx+'">처방가능</button>'+"</td>";
+                            tbody += "<td>"+ '<button type="button" class="imposbtn btn btn-red" name="impos" data-idx="'+el2.idx+'">처방불가능<f/button>'+"</td>";
+                            tbody += "</tr>";
+                        });
                     });
                 }
                 $(".patient-info tbody").html(tbody);
@@ -172,7 +172,7 @@
 </script>
 
 
-{% if session['mode'] != '2' : %}
+{% if session['mode'] != '3' : %}
 <script>
     alert("잘못된 접근입니다.");
     location.href="/mode"

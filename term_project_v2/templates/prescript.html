@@ -1,0 +1,27 @@
+{% extends 'template.html' %}
+{% block content %}
+
+<div>
+    발급 연월일
+    성명
+    의료기관 명칭*
+    처방의약품명칭 / 1회 투약량/ 1일 투여횟수/ 총 투약일수 
+    조제기관의 명칭* 
+    조제연월일
+    처방의 변경 수정 확인 대체 시 그 내용
+</div>
+
+<script>
+    
+</script>
+
+
+{% if session['mode'] != '2' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script>
+{%endif%}
+<script></script>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'template.html' %}
+{% block content %}
+
+
+<section>
+    <div class="w100">
+        <!-- 127.0.0.1:5000/save -->
+        <form action="/reservetime" id="register" method="post">
+            날짜
+            <input type="date" id="bday" name="bday" class="input">
+        
+            시간
+            <input type="time" id="btime" name="btime" class="input">
+            <button class="btn" type="submit" id="submit">예약하기</button>
+        </form>
+    </div>
+
+{% if session['mode'] != '1' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script>
+{%endif%}
+<script></script>
+
+{% endblock %}

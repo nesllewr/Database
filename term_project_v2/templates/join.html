@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+    <head>
+        <title>DB</title>
+        <!-- <link rel="stylesheet" href="/static/login.css"> -->
+        <link rel="stylesheet" href="/static/index.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    </head>
+    <body>
+        <header>
+            <div class="w100">
+                <h1>
+                    <a href="/" style="text-decoration: none; color:black;">Dr.HYU - Sign up </a>
+                </h1>
+                <nav>
+                    <ul>
+                        <li>
+                            <a href="/"style="color:gray; text-decoration:none;">Sign in (login page)</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header> 
+
+        <section>
+            <div class="w100">
+                <form action="/register" id="register" method="post">
+                    <table style="width:60%; margin:auto; border:1px solid rgb(51, 78, 173); text-align: left;">
+                        <tr>
+                        <th colspan="2" style="background-color: cornflowerblue;" >회원 기본 정보</th>
+                        </tr>
+
+                        <tr>
+                            <td>이메일 (e-mail)</td>
+                            <td>
+                                <input type="text" id="local">  @ 
+                                <input type="text" id="domain">
+                                예)id@domain.com</td>
+                        </tr>
+
+                        <tr>
+                            <td>비밀번호</td>
+                            <td><input type="password" id="passwd"></td>
+                        </tr>
+
+                        <tr>
+                            <td>비밀번호 확인</td>
+                            <td><input type="password" id="repeatPassword"></td>
+                        </tr>
+                        
+                        <tr>
+                            <td>이름</td>
+                            <td><input type="text" id="name"></td>
+                        </tr>
+                        
+                        <tr>
+                            <td>전화번호</td>
+                            <td><input type="text" id="phone"></td>
+                        </tr>
+                        <tr>
+                            <td>위도(ypos,lat)</td>
+                            <td><input type="text" id="lat" value="37.5585146"></td>
+                        </tr>
+                        <tr>
+                            <td>경도(xpos, lng)</td>
+                            <td><input type="text" id="lng" value="127.0331892"></td>
+                        </tr>
+
+                        <!-- <tr>
+                            <td>사용자타입</td>
+                            <td>
+                                <input type="checkbox" name="user-type" value="환자">환자
+                                <input type="checkbox" name="user-type" value="병원">병원
+                                <input type="checkbox" name="user-type" value="약국/기타">약국/기타
+                            </td>
+                        </tr> -->
+                    </table>
+                    <p style="text-align: center;">                    
+                        <button class="btn" type="submit" id="submit">회원가입</button>
+                        <input class="btn btn-red" type="reset" name="reset" value="다시 입력">
+                    </p>
+                </form>
+            </div>
+        </section>
+
+        <footer>
+            <div class="w100">
+                HYU DB Term Project
+            </div>
+        </footer>
+        
+        <script>
+            $(function(){
+               function onlyNumber() {
+                    if ((event.keyCode < 48) || (event.keyCode > 57))
+                        event.returnValue = false;
+                }
+                $("#phone").on("keypress", onlyNumber);
+                $("form").on("submit", function(e) {
+                    e.preventDefault();
+
+                    var data = {
+                        local: $("#local").val(),
+                        domain: $("#domain").val(),
+                        passwd: $("#passwd").val(),
+                        repeat: $("#repeatPassword").val(),
+                        name: $("#name").val(),
+                        phone: $("#phone").val(),
+                        lat: $("#lat").val(),
+                        lng: $("#lng").val(),
+                        //type: []
+                    };
+
+                    // $("input[name=user-type]").each(function(e, el) {
+                    //     if($(el).is(":checked")) data.type.push(e + 1);
+                    // });
+
+                    // data.checkbox = [0, 2]
+
+                    // data.checkbox = "0/2";
+
+                    if(data.local == "" || data.domain== ""||data.lat==""||data.lng=="") {
+                        alert("이메일을 입력하세요.");
+                        return false;
+                    }
+                    if( data.name == "") {
+                        alert("이름을 입력하세요.");
+                        return false;
+                    }
+                    if(data.passwd != data.repeat){
+                        alert("비밀번호를 확인해주세요.")
+                        return false;
+                    }
+                    if(data.phone.length !=11 ) {
+                        alert("전화번호를 11자리로 입력하세요.");
+                        return false;
+                    }
+                    if(data.phone.substr(0, 3) != "010") {
+                        alert("전화번호는 '010' 으로 시작해야 합니다.");
+                        return false;
+                    }
+                    // if(data.type.length <= 0){
+                    //     alert("사용자 타입을 체크해주세요.");
+                    //     return false;
+                    // }
+
+                    //data.type = data.type.join("/");
+                    
+                    $.ajax({
+                         url:'/register',
+                         type:'post',
+                         data: data,
+                         success : function(data){
+                            alert("회원 가입 완료.");
+                            location.href = '/';
+                         },
+                         error:function(){
+                             alert("try again");
+                         }
+                     });
+        
+                });
+
+            });
+        </script>
+    </body>
+</html>
+
+
