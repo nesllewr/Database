@@ -237,6 +237,7 @@ def initialize():
             cursor.execute(sql)
             connect.commit()
 
+
         url = 'http://apis.data.go.kr/B551182/pharmacyInfoService/getParmacyBasisList?serviceKey=XhfOkkV4VVmhR%2F2YKF%2FPmSlse%2F94onDOCkeG%2FrZ6zdShdhyS%2FbpcVXd1F78UWW4NhX4DIDVrltg1YisMdslXaw%3D%3D'
         url += '&format=json'
         url += '&numOfRows=100'
@@ -327,14 +328,14 @@ def update_data(data,local, domain):
     connect.close()
     return data
 
-def get_hos_info():
+def get_hos_info(memidx):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  
     sql = "select * from member join hospital on hospital.idx = member.hosidx where member.hosidx is not null"
     cursor.execute(sql)
     result cursor.fetchall()
 
-def get_pha_info():
+def get_pha_info(memidx):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  
     sql = "select * from member join pharmacy on pharmacy.idx = member.hosidx where member.phaidx is not null"
