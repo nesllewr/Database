@@ -45,9 +45,7 @@ def initialize():
             passwd varchar(20) NOT NULL,
             lat varchar(30),
             lng varchar(30),
-            type varchar(10),
-            hosidx integer,
-            phaidx integer 
+            type varchar(10) 
             );
         '''
     print("SQL Try!")
@@ -69,8 +67,6 @@ def initialize():
             name varchar(40) NOT NULL,
             docCnt integer NOT NULL,
             subject varchar(30) NOT NULL,
-            lat varchar(30),
-            lng varchar(30),
             dist text,
             workingTime text,
             addr text,
@@ -162,15 +158,17 @@ def initialize():
 
     #table에 data가 없는 경우 초기 데이터 contact.csv을 table에 copy
     if result[0][0] <= 0 :
-<<<<<<< HEAD
-        f = open(r'C:\Users\llewr\Database\term_project\customers.csv', 'r', encoding='UTF8')
-        next(f) #데이터 첫 줄 넘어가기 (header line)
-=======
         f = open('customers.csv', 'r', encoding='UTF8')
->>>>>>> 995faff4d888dcf7945662f767b15fe1ef0456d6
+        # [UPDATE]
+        ######################################################################### 데이터 첫 줄 넘어감 (header line)
+        next(f)
+        #########################################################################
         cursor.copy_from(f, "member", sep=',', columns=['name', 'phone','local','domain','passwd','lat','lng'])
         #파일 객체 table name seperator(delim) [column옵션] 
         f.close()
+        cursor.execute("insert into member (name, phone, local, domain, passwd, lat, lng, type) values ('테스터', '01011111111', 'tester', 't', 't', '0', '0', '1/2/3')")
+        cursor.execute("insert into hospital (fk_member, name, doccnt, subject, dist, workingtime, addr) values ('50001', '테스터병원', '100', '치과', '1000', '1/9:00/18:00', '서울특별시 동대문구 경희대로 23 (회기동)')")
+        cursor.execute("insert into rehospital (fk_member, fk_hospital, rtime) values (1, 1, '2019-12-15 12:00:00')")
 
         connect.commit()
     
@@ -241,7 +239,6 @@ def initialize():
             cursor.execute(sql)
             connect.commit()
 
-
         url = 'http://apis.data.go.kr/B551182/pharmacyInfoService/getParmacyBasisList?serviceKey=XhfOkkV4VVmhR%2F2YKF%2FPmSlse%2F94onDOCkeG%2FrZ6zdShdhyS%2FbpcVXd1F78UWW4NhX4DIDVrltg1YisMdslXaw%3D%3D'
         url += '&format=json'
         url += '&numOfRows=100'
@@ -282,6 +279,7 @@ def initialize():
     connect.close()
 
 def insert_data(data):
+    print(data)
     connect = pg.connect(connect_string)
     cursor = connect.cursor()
     sql = f'''INSERT INTO member (name,phone,local,domain,passwd,lat,lng,type)
@@ -306,9 +304,7 @@ def get_datatype(local, domain):
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     sql = f'''select * from member where local = \'{local}\' AND domain=\'{domain}\''''
     cursor.execute(sql)
-    result = cursor.fetchall()
-    if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
-        result = result[0]   
+    result = cursor.fetchall()[0]
     connect.close()
     return result
 
@@ -316,35 +312,11 @@ def get_datatype(local, domain):
 def update_data(data,local, domain):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    #typeset =data.split('/')
-    condition = ""
-    if '2' in data :
-        hosidx = str(random.randint(1,100))
-        condition = "', hosidx = '"+ hosidx
-    if '3' in data :
-        phaidx =  str(random.randint(1,100))
-        condition +="', phaidx = '" + phaidx
-
-    sql = "UPDATE member SET type ='"+ data + condition +"'where local='"+local+"' AND domain ='"+domain+"'"
+    sql = f'''UPDATE member SET type = \'{data["type"]}\' where local = \'{local}\' AND domain=\'{domain}\''''
     cursor.execute(sql)
-
     connect.commit()
     connect.close()
-    return data
-
-def get_hos_info(memidx):
-    connect = pg.connect(connect_string)
-    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  
-    sql = "select * from member join hospital on hospital.idx = member.hosidx where member.hosidx is not null"
-    cursor.execute(sql)
-    result cursor.fetchall()
-
-def get_pha_info(memidx):
-    connect = pg.connect(connect_string)
-    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  
-    sql = "select * from member join pharmacy on pharmacy.idx = member.hosidx where member.phaidx is not null"
-    cursor.execute(sql)
-    result cursor.fetchall()
+    return "ok"
 
 def select_hospital_data(mode,word,curlat, curlng) :
     connect = pg.connect(connect_string)
@@ -392,12 +364,11 @@ def check_hospital_info(local,domain):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     sql = " select * from hospital join member on member.idx = hospital.FK_member where local = '" + local + "' and domain = '" + domain + "'"
+    print(sql)
     # sql = " select * , "+condition+ "AS distance from hospital join member on member.idx = hospital.FK_member where local ='" + local + "'AND domain = '"+ domain +"' HAVING distance <= 5000 ORDER BY distance"
 
     cursor.execute(sql)
-    result = cursor.fetchall()
-    if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
-        result = result[0]    
+    result = cursor.fetchall()[0]
     connect.close()
     return result
 
@@ -415,23 +386,39 @@ def select_patient_data(mode,word,table):
         condition =""
 
     if table =="hospital":
-        sql = " select * from rehospital join member on member.idx = rehospital.FK_member"+ condition
+        sql = " select * from rehospital join member on member.idx = rehospital.FK_member "+ condition
     elif table =="pharmacy":
         sql = " select * from repharmacy join member on member.idx = repharmacy.FK_member "+ condition
+ 
     # sql = " select * , "+condition+ "AS distance from hospital join member on member.idx = hospital.FK_member where local ='" + local + "'AND domain = '"+ domain +"' HAVING distance <= 5000 ORDER BY distance"
 
     cursor.execute(sql)
     result = cursor.fetchall()
-    if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
-        result = result[0]    
-        result["rtime"] = result.get("rtime").strftime("%Y-%m-%d %H:%M:%S")
+    
+    # [UPDATE]
+    #######################################################################################################
+    #result가 없는 경우 [0] 접근 불가
+    if len(result) > 0:
+        result = result[0]
+    #######################################################################################################
+    
+    # [UPDATE]
+    #######################################################################################################
+    # postgres 안의 rtime column은 현재 datetime 형태라 값을 가져오면 datetime.date 형태
+    # json으로 dump 되려면 모든 value는 숫자 혹은 문자열 형태여야하므로 저런 예약어가 적용이 안됨
+    # strftime 은 날짜를 문자열 형태로 바꿔주는 함수
+    # %Y, %m, %d, %H, %M, %S 는 모두 년, 월, 일, 시, 분, 초를 뜻함
+    # 확인 >>https://www.ibm.com/support/knowledgecenter/ko/ssw_ibm_i_73/rtref/strfti.htm<<
+    result["rtime"] = result.get("rtime").strftime("%Y-%m-%d %H:%M:%S")
+    #######################################################################################################
+        
     connect.close()
     return result
-    
+
 def delete_data(index):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    sql = f'''DELETE FROM rehospital WHERE FK_member = \'{index}\';
+    sql = f'''DELETE FROM rehospital WHERE FK_hospital = \'{index}\';
     '''
     cursor.execute(sql)
     connect.commit()
