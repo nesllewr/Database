@@ -115,13 +115,20 @@ def checktype():
 def patient():
     return render_template("patient.html")
 
+@app.route('/visited',methods=["post"])
+def visited():
+    result = helper.get_visited_hos(session['idx'])
+    result = json.dumps(result)
+    return result
+
+
 @app.route("/checkpres", methods=["POST"])
 def checkpres():
     result = helper.check_prescription_info(session['idx'])
     result = json.dumps(result)
     return result
 
-
+#환자페이지 - 병원 정보 찾기
 @app.route("/selecthosp", methods=["POST"])
 def selecthosp():
     mode = request.form["mode"]
@@ -207,13 +214,22 @@ def delete_reservation():
 @app.route("/prescript", methods=["GET"])
 def prescript():
     id = request.args.get("idx")
+    rtime = request.args.get('time')
     result = helper.get_workingtime(id, "member")[0]
-    return render_template('prescript.html', name=result[1], hosname=session['hosname'])
+    return render_template('prescript.html', name=result[1], hosname=session['hosname'],rtime = rtime)
 
 @app.route("/setprescript",methods=["POST"])
 def setprescript():
     helper.set_prescription(request.form,session['hosidx'])
     return "ok"
+    
+#병원 - 환자방문 이력
+@app.route('/visitedpatient',methods=["post"])
+def visitedpa():
+    result = helper.get_visited_pat(session['hosidx'])
+    result = json.dumps(result)
+    return result
+
 
 
 #약국 페이지
@@ -238,6 +254,7 @@ def prescription():
 def changestate():
     newstate = request.form['newstate']
     idx = request.form['idx']
+    print(newstate,idx)
     result = helper.change_state(newstate,idx)
     return "ok"
 

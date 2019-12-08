@@ -2,10 +2,31 @@
 {% block content %}
 <section>
     <div class="w100">
-        <button class="btn" name="regist">자주가는 병원등록</button>
-        <button class="btn" name="pre-list">처방전 목록</button>
+        <button class="btn" id="visiting">방문한 병원 목록</button>
     </div>
 </section>
+<section>
+    <div class="w100">
+        <br>
+        <table class="visited">
+            <thead>
+                <tr>
+                    <th> No </th>
+                    <th>병원 이름</th>
+                    <th>방문 횟수</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3">자주 간 병원 순으로 나타납니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+<br>
+<br><br><br>
+처방전 목록은 최근 발급순으로 나타납니다.
 <section>
     <div class="w100">
         <br>
@@ -97,15 +118,13 @@ $(document).ready(function(){
         success : function(data){
             var tbody = "";  
             if(data.length > 0){
-                
                 data = JSON.parse(data);
                 $(data).each(function(e, el){
-                    console.log(el.isdone)
                     tbody += "<tr>";
                     tbody += "<td>"+ (e+1) +"</td>";
                     tbody += "<td>"+ el.hosname +"</td>";
                     tbody += "<td>"+ el.issuetime +"</td>";
-                    tbody += "<td>"+ el.dose +"</td>";
+                    tbody += "<td>"+ el.medicine +"</td>";
                     if(el.isdone=='0'){
                         tbody += "<td>확인중</td>";                        
                     }
@@ -116,7 +135,7 @@ $(document).ready(function(){
                         tbody += "<td>처방 불가능</td>";
                     }
                     else {
-                        tbody += "<td>"+ '<button type="button" class="reserbtn btn btn-blue" name="reser" data-idx="'+el.idx+'">예약</button>'+"</td>";
+                        tbody += "<td>"+ '<button type="button" class="reserbtn btn btn-blue" name="reser" data-idx="'+el.idx+'">약국 예약</button>'+"</td>";
                     }
                     tbody += "</tr>";
                     
@@ -128,6 +147,31 @@ $(document).ready(function(){
     });
     $("body").on("click",".reserbtn",function(){
         location.href = 'searchpha?idx='+ $(this).attr("data-idx");
+    });
+
+    $("body").on("click","#visiting",function(){
+        $.ajax({
+            type:"post",
+            url:"visited",
+            data: {},
+            success:function(data){
+                var tbody = "";  
+            if(data.length > 0){
+                data = JSON.parse(data);
+                console.log(data)
+                $(data).each(function(e, el){
+                    tbody += "<tr>";
+                    tbody += "<td>"+ (e+1) +"</td>";
+                    tbody += "<td>"+ el[0] +"</td>";
+                    tbody += "<td>"+ el[1] +"</td>";
+                    tbody += "</tr>";
+                    
+                });
+            }
+
+            $(".visited tbody").html(tbody);
+            }
+        });
     });
     
 });
@@ -184,8 +228,7 @@ $(function() {
         var mode = $(".hospitalForm .mode").val();
         var word = $(".hospitalForm .search").val();
 
-        console.log(mode);
-
+       
         $.ajax({
             url: "/selecthosp",
             data: {
@@ -206,7 +249,6 @@ $(function() {
                     mapOption = map;
                     $(data).each(function(e, el) {
                         setMark(el.lat, el.lng, el.name);
-                        //var work = el.workingtime.split("/");
                         tbody += "<tr>";
                         tbody += "<td>"+ (e + 1) +"</td>";
                         tbody += "<td>"+ el.name +"</td>";

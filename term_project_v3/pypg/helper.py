@@ -338,18 +338,18 @@ def get_datatype(local, domain,mode):
 def check_prescription_info(index) :
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    sql = " select * from prescription join repharmacy on repharmacy.fk_prescription = prescription.idx where fk_member = '" + str(index) + "'"
+    #sql = " select * from prescription join repharmacy on repharmacy.fk_prescription = prescription.idx where fk_member = '" + str(index) + "'"
+    sql = "select * from prescription where fk_member  = '" + str(index) + "' order by issuetime DESC "
     cursor.execute(sql)
     result = cursor.fetchall()
     if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
-        result = result[0]
-        result["issuetime"] = result.get("issuetime").strftime("%Y-%m-%d %H:%M:%S")
-        if(result.get("medtime")!=None):
-            result["medtime"] = result.get("medtime").strftime("%Y-%m-%d %H:%M:%S")
-        if(result.get("rtime")!=None):
-            result["rtime"] = result.get("rtime").strftime("%Y-%m-%d %H:%M:%S")
+        for row in result:
+            row["issuetime"] = row.get("issuetime").strftime("%Y-%m-%d %H:%M:%S")
+            if(row.get("rtime")!=None):
+                row["rtime"] = row.get("rtime").strftime("%Y-%m-%d %H:%M:%S")
+            if(row.get("medtime")!=None):
+                row["medtime"] = row.get("medtime").strftime("%Y-%m-%d %H:%M:%S")
 
-    print(result)
     connect.close()
     return result
 
@@ -370,7 +370,7 @@ def select_hospital_data(mode,word,curlat, curlng) :
     elif mode == "hospname" : 
         condition = " hospital.name LIKE '%"+ word + "%'"
 
-    sql = " select * from hospital where " + condition + " limit 20 "
+    sql = " select * from hospital where " + condition 
     
     cursor.execute(sql)
     result = cursor.fetchall()
@@ -391,7 +391,7 @@ def select_pharmacy_data(mode,word,curlat, curlng) :
     elif mode == "pharmname" : 
         condition = " pharmacy.name LIKE '%"+ word + "%'"
 
-    sql = " select * from pharmacy  where " + condition + " limit 20 "
+    sql = " select * from pharmacy  where " + condition
     cursor.execute(sql)
     result = cursor.fetchall()
     connect.close()
@@ -405,13 +405,11 @@ def set_prescription(data, hosidx):
     sql = f'''INSERT INTO prescription(fk_member, fk_hospital, memname, hosname, issuetime,  medicine, dose, daymed, totalday, isdone) VALUES (\'{data["paidx"]}\', \'{hosidx}\',\'{data["patient"]}\',\'{data["hosname"]}\',now(),\'{data["medtype"]}\',\'{data["oncemed"]}\',\'{data["daymed"]}\',\'{data["totalmed"]}\', -1);'''
     cursor.execute(sql)
     connect.commit()
-
-
-    sql = f'''SELECT idx from rehospital where fk_hospital=\'{hosidx}\' AND fk_member =\'{data["paidx"]}\' LIMIT 1'''
+    sql = f'''SELECT idx from rehospital where fk_hospital=\'{hosidx}\' AND fk_member =\'{data["paidx"]}\' AND rtime =\'{data['rtime']}\'''' 
     cursor.execute(sql)
     result = cursor.fetchall()[0]
-
-    sql = "UPDATE rehospital SET checked = 1, fk_prescription= '"+ str(result[0])+"' where fk_hospital = '"+ hosidx+"' AND fk_member ='"+data["paidx"]+"'"
+    print(result)
+    sql = "UPDATE rehospital SET checked = 1, fk_prescription= '"+ str(result[0])+"' where fk_hospital = '"+ hosidx+"' AND fk_member ='"+data["paidx"]+"' AND rtime = '"+data['rtime']+"'"
     cursor.execute(sql)
     connect.commit()
 
@@ -448,23 +446,33 @@ def select_patient_data(mode,word,table,index):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     condition=""
-    if mode == "paname" :
-        contion = "AND member.name LIKE '%" + word + "%'"
-    elif mode == "paphone" :
-        contion = "AND member.phone LIKE '%" + word + "%'"
-    elif mode =="date":
-        contion = ""
-    else :
-        condition =""
-        
+    
+    print(word)
     if table =="hospital":
-        sql = " select * from rehospital join member on member.idx = rehospital.FK_member where rehospital.FK_hospital = '" + str(index) + "'AND checked=0"+ condition
+        if mode == "paname" :
+            condition = "AND member.name LIKE '%" + word + "%'"
+        elif mode == "paphone" :
+            condition = "AND member.phone LIKE '%" + word + "%'"
+        elif mode =="date":
+            condition = "AND rehospital.rtime between '" + word +" 00:00:00' and '"+word+" 23:59:59' " 
+        else :
+            condition =""
+        sql = " select * from rehospital join member on member.idx = rehospital.FK_member where rehospital.FK_hospital = '" + str(index) + "' AND checked= '0' " + condition
     elif table =="pharmacy":
+        if mode == "paname" :
+            condition = "AND prescription.memname LIKE '%" + word + "%'"
+        elif mode == "paphone" :
+            condition = "AND prescription.phone LIKE '%" + word + "%'"
+        elif mode =="date":
+            condition = "AND repharmacy.rtime between '" + word +" 00:00:00' and '"+word+" 23:59:59' " 
+        else :
+            condition =""
+        
         sql = " select * from repharmacy join prescription on prescription.idx = repharmacy.FK_prescription where repharmacy.FK_pharmacy = '" + str(index) + "'" + condition
 
     cursor.execute(sql)
     result = cursor.fetchall()
-    print(result)
+    print(sql)
     if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
         for row in result:
             row["rtime"] = row.get("rtime").strftime("%Y-%m-%d %H:%M:%S")
@@ -478,11 +486,12 @@ def select_patient_data(mode,word,table,index):
     connect.close()
     return result
     
-def delete_data(index):
+def delete_data(time):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    sql = f'''DELETE FROM rehospital WHERE FK_member = \'{index}\';
-    '''
+    sql = "DELETE FROM rehospital WHERE rtime = '"+time+"'"
+    #sql = f'''DELETE FROM rehospital WHERE FK_member = \'{index}\';
+    #'''
     cursor.execute(sql)
     connect.commit()
     connect.close()
@@ -503,9 +512,6 @@ def complete_prescription(newstate,idx,word):
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     sql = "UPDATE prescription SET  medtime = now(), isdone=3, commentline='"+word+"' WHERE idx = '"+idx+"';"
     result = cursor.execute(sql)
-    print(sql)
-    result["medtime"] = result.get("medtime").strftime("%Y-%m-%d %H:%M:%S")
-
     connect.commit()
     connect.close()
     return result
@@ -519,11 +525,11 @@ def reservation(tablename,hosid, userid, rhtime,preidx):
     if tablename == "hospital":
         sql = "INSERT INTO re"+tablename+" (FK_"+tablename+", FK_member,rtime,checked) VALUES('"+ hosid +"','"+userid+"','"+rhtime+"',0)"
     elif tablename =="pharmacy":
+        change_state('0',preidx)
         sql = "INSERT INTO repharmacy( fk_prescription, fk_pharmacy, rtime) VALUES ( "+preidx+", "+hosid+", '"+rhtime+"');"
     cursor.execute(sql)
     connect.commit()
     connect.close() 
-    result = change_state('0',preidx)
     return "ok"
 
 def get_workingtime(index,where):
@@ -536,3 +542,22 @@ def get_workingtime(index,where):
     connect.close()
     return result
 
+
+def get_visited_hos(paidx):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor()
+    sql = "SELECT prescription.hosname,count(hosname) visited FROM prescription where fk_member='"+str(paidx)+"' group by prescription.hosname order by visited DESC;"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    connect.close()
+    return result
+
+
+def get_visited_pat(hosidx):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor()
+    sql = "SELECT prescription.memname,count(memname) visited FROM prescription where fk_hospital='"+str(hosidx)+"' group by prescription.memname order by visited DESC;"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    connect.close()
+    return result

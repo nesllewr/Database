@@ -499,10 +499,9 @@ $(document).ready(function(){
 
 });
 
-var newstate =""
 var idx = '{{id}}';
 $("body").on("click",".posbtn",function(){
-    newstate = "1"
+    var newstate = '1';
     $.ajax({
         url:"/changestate",
         data : {
@@ -518,7 +517,8 @@ $("body").on("click",".posbtn",function(){
     location.href = '/pharmacy';
 });
 $("body").on("click",".imposbtn",function(){
-    newtate ="2"
+    var newstate ='2';
+	console.log(newstate)
     $.ajax({
         url:"/changestate",
         data : {
@@ -540,7 +540,6 @@ $("body").on("click",".donebtn",function(){
     $.ajax({
         url:"/completeprescription",
         data : {
-            newstate : newstate,
             idx : idx,
             word : word
         },

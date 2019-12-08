@@ -86,9 +86,11 @@ $("form").on("submit", function(e) {
     
     var url = new URL(location.href);
     paidx = url.searchParams.get("idx");
+    rtime = url.searchParams.get("time")
     
     var data = {
         paidx : paidx,
+        rtime : rtime,
         patient: $("#patient").val(),
         hosname: $("#hosname").val(),
         medtype: $("#med-type").val(),
