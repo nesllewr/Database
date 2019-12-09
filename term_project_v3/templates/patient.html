@@ -25,10 +25,10 @@
     </div>
 </section>
 <br>
-<br><br><br>
-처방전 목록은 최근 발급순으로 나타납니다.
 <section>
     <div class="w100">
+        
+처방전 목록은 최근 발급순으로 나타납니다.
         <br>
         <table class="prescription">
             <thead>
@@ -36,8 +36,8 @@
                     <th> No </th>
                     <th>병원 이름</th>
                     <th>발급 날짜</th>
+                    <th>처방 의약품</th>
                     <th>처방 여부</th>
-                    <th>처방전 열람</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,11 +49,8 @@
     </div>
 </section>
 <br>
-<br>
-<br>
-
 <section>
-    <div class="info">
+    <div class="info w100">
         <form action="/selecthosp" method="post" class="hospitalForm"> 
             <select class="input mode" name="mode"> 
                 <option id="surround" selected="selected" value="surround"> 
@@ -75,37 +72,38 @@
 
 <br>
 <br>
-<div>
-    위도 : {{session["lat"]}}
-    경도 : {{session["lng"]}}
-    <br>
-    [병원 지도]
+<div class="w100">
+    <div>
+        위도 : {{session["lat"]}}
+        경도 : {{session["lng"]}}
+        <br>
+        [병원 지도]
+    </div>
+    <div id="map" style="width:500px;height:400px;"></div>
+    
+     <div>
+        <br>
+        <table id = "hospital">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>과목</th>
+                    <th>휴일</th>
+                    <th>open time</th>
+                    <th>close time</th>
+                    <th>예약</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="8">검색 결과가 표시됩니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>    
 </div>
-<div id="map" style="width:500px;height:400px;"></div>
-
- <div>
-    <br>
-    <table class = "hospital">
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Name</th>
-                <th>Number</th>
-                <th>과목</th>
-                <th>휴일</th>
-                <th>open time</th>
-                <th>close time</th>
-                <th>예약</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td colspan="8">검색 결과가 표시됩니다.</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
 
 
 <script>
@@ -134,6 +132,10 @@ $(document).ready(function(){
                     else if(el.isdone=='2'){
                         tbody += "<td>처방 불가능</td>";
                     }
+                    else if(el.isdone=='3'){
+                        tbody += "<td>처방 완료</td>";
+                    }
+                    
                     else {
                         tbody += "<td>"+ '<button type="button" class="reserbtn btn btn-blue" name="reser" data-idx="'+el.idx+'">약국 예약</button>'+"</td>";
                     }
@@ -261,7 +263,7 @@ $(function() {
                         tbody += "</tr>";
                     });
                 }
-                $(".hospital tbody").html(tbody);
+                $("#hospital tbody").html(tbody);
                 
             }
         });

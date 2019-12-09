@@ -4,6 +4,7 @@ import random
 import csv
 import xmltodict
 import requests
+import math
 
 pg_local = {
     'host':"localhost",
@@ -335,11 +336,16 @@ def get_datatype(local, domain,mode):
 
 
 #환자페이지
-def check_prescription_info(index) :
+def check_prescription_info(index,hosidx) :
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    if hosidx != None:
+        condition = "' AND fk_hospital = '"+str(hosidx)+"'"
+    else :
+        condition = "' order by issuetime DESC " 
     #sql = " select * from prescription join repharmacy on repharmacy.fk_prescription = prescription.idx where fk_member = '" + str(index) + "'"
-    sql = "select * from prescription where fk_member  = '" + str(index) + "' order by issuetime DESC "
+    sql = "select * from prescription where fk_member  = '" + str(index) +condition 
+    print(sql)
     cursor.execute(sql)
     result = cursor.fetchall()
     if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
@@ -507,7 +513,7 @@ def change_state(newstate,idx):
     connect.close()
     return result
 
-def complete_prescription(newstate,idx,word):
+def complete_prescription(idx,word):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     sql = "UPDATE prescription SET  medtime = now(), isdone=3, commentline='"+word+"' WHERE idx = '"+idx+"';"
@@ -535,6 +541,7 @@ def reservation(tablename,hosid, userid, rhtime,preidx):
 def get_workingtime(index,where):
     connect = pg.connect(connect_string)
     cursor = connect.cursor()
+    index = str(index)
     sql = "SELECT * FROM "+where+" WHERE "+where+".idx = "+index
     #sql = f'''SELECT * FROM \'{where}\' join member on member.idx = \'{where}\'.FK_member WHERE member.idx = \'{index}\';'''
     cursor.execute(sql)
@@ -561,3 +568,74 @@ def get_visited_pat(hosidx):
     result = cursor.fetchall()
     connect.close()
     return result
+
+#hospital 추가 데이터 넣기
+def add_new_hosdata(lat,lng):
+    url = 'http://apis.data.go.kr/B551182/hospInfoService/getHospBasisList?serviceKey=XhfOkkV4VVmhR%2F2YKF%2FPmSlse%2F94onDOCkeG%2FrZ6zdShdhyS%2FbpcVXd1F78UWW4NhX4DIDVrltg1YisMdslXaw%3D%3D'
+    url += '&format=json'
+    url += '&numOfRows=100'
+    url += '&radius=5000'
+    url += '&yPos='+lat
+    url += '&xPos='+lng
+    url += '&pageNo=1'
+
+    res = requests.get(url)
+    res = xmltodict.parse(res.text)
+    res = res.get("response").get("body").get("items").get("item")
+
+    subjects = ["내과", "외과", "정형외과", "영상의학과", "마취통증학과", "치과", "안과"]
+
+    for row in res:
+            name = row["yadmNm"]
+            phone = row["telno"].replace("-", "")
+            lng = row["XPos"]
+            lat = row["YPos"]
+            docCnt = row["sdrCnt"]
+            subject = []
+            for i in random.sample(range(0, 7), random.randint(1, 7)):
+                subject.append(subjects[i])
+            # subject = subjects[random.sample(range(0,6),random.randint(0, 6))]
+            subject= "/".join(subject)
+            dist = row["distance"]
+            addr = row["addr"]
+            holiday = str(random.randint(0, 6)) 
+            opent = opentime[random.randint(0, 4)] 
+            closet = endtime[random.randint(0, 4)]
+
+            sql = f'''insert into hospital (name,phone,doccnt,subject,lng,lat,addr,holiday,opent,closet) values ( \'{name}\', \'{phone}\',\'{docCnt}\', \'{subject}\',\'{lng}\',\'{lat}\', \'{addr}\',\'{holiday}\', \'{opent}\', \'{closet}\')'''
+            cursor.execute(sql)
+            connect.commit()
+    connect.close
+    
+ #pharmacy 추가 데이터 넣기
+def add_new_phadata(lat,lng):
+    url = 'http://apis.data.go.kr/B551182/pharmacyInfoService/getParmacyBasisList?serviceKey=XhfOkkV4VVmhR%2F2YKF%2FPmSlse%2F94onDOCkeG%2FrZ6zdShdhyS%2FbpcVXd1F78UWW4NhX4DIDVrltg1YisMdslXaw%3D%3D'
+    url += '&format=json'
+    url += '&numOfRows=100'
+    url += '&radius=5000'
+    url += '&yPos='+lat
+    url += '&xPos='+lng
+    url += '&pageNo=1'
+
+    res = requests.get(url)
+    res = xmltodict.parse(res.text)
+    res = res.get("response").get("body").get("items").get("item")
+    
+    for row in res:
+        name = row["yadmNm"]
+        phone = ""
+        if row.get("telno") != None:
+            phone = row["telno"].replace("-", "")
+        lng = row["XPos"]
+        lat = row["YPos"]
+        addr = row["addr"]
+        holiday = str(random.randint(0, 6)) 
+        opent = opentime[random.randint(0, 4)] 
+        closet = endtime[random.randint(0, 4)]
+
+        sql = f'''insert into pharmacy (name,phone,lng,lat,addr,holiday,opent,closet) values ( \'{name}\', \'{phone}\', \'{lng}\',\'{lat}\', \'{addr}\',\'{holiday}\', \'{opent}\', \'{closet}\')'''
+        cursor.execute(sql)
+        connect.commit()
+
+
+    connect.close

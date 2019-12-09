@@ -29,7 +29,7 @@
 <br>
 <br>
 <section>
-    <div class="info">
+    <div class="info w100">
         <form action="/selectpat" method="post" class="patientForm"> 
             <select class="input mode" name="mode"> 
                 <option id="surround" selected="selected" value="all"> 
@@ -151,7 +151,7 @@
                                 tbody += "<td>처방 완료</td>";
                                 tbody += "<td>"+ el2.medtime +"</td>";
                             }
-                            tbody += "<td>"+ '<button type="button" class="readbtn btn btn-green" name="read" data-name="'+el2.isdone+'" data-idx="'+el2.fk_prescription+'">열람"'+el2.fk_prescription+'"</button>'+"</td>";
+                            tbody += "<td>"+ '<button type="button" class="readbtn btn btn-green" name="read" data-name="'+el2.isdone+'" data-idx="'+el2.fk_prescription+'">열람</button>'+"</td>";
                             tbody += "</tr>";
                         });
                     });

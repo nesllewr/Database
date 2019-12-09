@@ -430,8 +430,8 @@ div.HStyle17
 	<P CLASS=HStyle0><SPAN STYLE='font-family:"맑은 고딕"'>{{phaname}}</SPAN></P>
 	</TD>
 	<TD rowspan="2" colspan="4" valign="top" style='width:267;height:89;border-left:solid #000000 0.4pt;border-right:solid #000000 0.4pt;border-top:solid #000000 0.4pt;border-bottom:solid #000000 0.4pt;padding:1.4pt 5.1pt 1.4pt 5.1pt'>
-	<P CLASS=HStyle0 STYLE='text-align:center;'><SPAN STYLE='font-family:"맑은 고딕"'>처방의 변경 · 수정 · 확인 · 대체 시</SPAN></P>
-	<P CLASS=HStyle0 STYLE='text-align:center;'><SPAN STYLE='font-family:"맑은 고딕"'>그 내용 등</SPAN></P>
+	<P CLASS=HStyle0 STYLE='text-align:center;'><SPAN STYLE='font-family:"맑은 고딕"'></SPAN></P>
+	<P CLASS=HStyle0 STYLE='text-align:center;'><SPAN STYLE='font-family:"맑은 고딕"'> {{data[12]}}</SPAN></P>
 	</TD>
 </TR>
 <TR>
@@ -460,7 +460,7 @@ div.HStyle17
 	<P CLASS=HStyle0 STYLE='text-align:center;'><SPAN STYLE='font-family:"맑은 고딕"'>조제연월일</SPAN></P>
 	</TD>
 	<TD colspan="5" valign="middle" style='width:265;height:25;border-left:solid #000000 0.4pt;border-right:solid #000000 0.4pt;border-top:solid #000000 0.4pt;border-bottom:solid #000000 0.4pt;padding:1.4pt 5.1pt 1.4pt 5.1pt'>
-	<P CLASS=HStyle0><SPAN STYLE='font-family:"맑은 고딕"'>&nbsp;</SPAN></P>
+	<P CLASS=HStyle0><SPAN STYLE='font-family:"맑은 고딕"'> {{data[6]}} </SPAN></P>
 	</TD>
 	<TD colspan="4" valign="top" style='width:267;height:25;border-left:solid #000000 0.4pt;border-right:solid #000000 0.4pt;border-top:solid #000000 0.4pt;border-bottom:solid #000000 0.4pt;padding:1.4pt 5.1pt 1.4pt 5.1pt'>
 	<P CLASS=HStyle0 STYLE='text-align:center;'><SPAN STYLE='font-family:"맑은 고딕"'>&nbsp;</SPAN></P>
@@ -548,7 +548,7 @@ $("body").on("click",".donebtn",function(){
             alert("처방이 완료되었습니다.")
         }
     });
-   // location.href = '/pharmacy';
+    location.href = '/pharmacy';
 });
 
 $("body").on("click",".backbtn",function(){

@@ -3,7 +3,7 @@
 
 <br>
  <section>
-    <div class="info">
+    <div class="info w100">
         <form action="/selectpharm" method="post" class="pharmacyForm"> 
             <select class="input mode" name="mode"> 
                 <option selected="selected" value="surround"> 
@@ -18,33 +18,34 @@
             <button type="submit" id="submit" class="btn">검색</button>
         </form> 
     </div>
-</section>   
-<div>
-        [약국 지도]
-</div>
-<div id="map2" style="width:500px;height:400px;"></div>
+    <div class="w100">
+            [약국 지도]
+    </div>
+    <div class="w100" id="map2" style="width:500px;height:400px;"></div>
+        
+    <div class="w100">
+        <br>
+        <table class="pharmacy">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>휴일</th>
+                    <th>open time</th>
+                    <th>close time</th>
+                    <th>예약</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6">검색 결과가 표시됩니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>   
     
-<div>
-    <br>
-    <table class="pharmacy">
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Name</th>
-                <th>Number</th>
-                <th>휴일</th>
-                <th>open time</th>
-                <th>close time</th>
-                <th>예약</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td colspan="6">검색 결과가 표시됩니다.</td>
-            </tr>
-        </tbody>
-    </table>
-</div>   
+</section>   
     
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=62c685e55918943e32edb967dcf1a4f5"></script>
 <script>
@@ -120,7 +121,7 @@ $(function() {
                         tbody += "<td>" + holiday[parseInt(el.holiday)] + "</td>";
                         tbody += "<td>오전 "+ el.opent +"</td>";
                         tbody += "<td>오후 "+ el.closet +"</td>";
-                        tbody += "<td>"+ '<button type="button" class="reserbtn btn btn-red" name="reser" data-idx="'+el.idx+'">예약"'+el.idx+'"</button>'+"</td>";
+                        tbody += "<td>"+ '<button type="button" class="reserbtn btn btn-red" name="reser" data-idx="'+el.idx+'">예약</button>'+"</td>";
                         tbody += "</tr>";
                     });
                 }

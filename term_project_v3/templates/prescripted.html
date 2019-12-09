@@ -1,0 +1,73 @@
+{% extends 'template.html' %}
+{% block content %}
+<section>
+    <div class="w100">
+        
+        병원 이름 :  {{hosname}}
+        <br>
+        환자 이름 : {{name}}
+        <br>
+        <br>
+        <br>
+        <table class="prescription">
+            <thead>
+                <tr>
+                    <th> No </th>
+                    <th>발급 날짜</th>
+                    <th>처방 의약품</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4">처방 이력이 나타납니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class ="w100">
+        <button type="button" class="backbtn btn btn-green" name="back">돌아가기</button>
+    </div>
+</section>
+    
+{% if session['mode'] != '2' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script> 
+{%endif%}
+<script>
+$(document).ready(function(){
+    var url = new URL(location.href);
+    var paidx = url.searchParams.get("idx");
+    
+    $.ajax({
+        url : "/prescriptedlist",
+        data:{
+            paidx : paidx
+        },
+        type : "POST",
+        success : function(data){
+            var tbody = "";  
+            if(data.length > 0){
+                data = JSON.parse(data);
+                $(data).each(function(e, el){
+                    tbody += "<tr>";
+                    tbody += "<td>"+ (e+1) +"</td>";
+                    tbody += "<td>"+ el.issuetime +"</td>";
+                    tbody += "<td>"+ el.medicine +"</td>";
+                    tbody += "</tr>";
+                    
+                });
+            }
+            $(".prescription tbody").html(tbody);
+        }
+        
+    });
+
+    $("body").on("click",".backbtn",function(){
+        location.href = '/hospital';
+    });
+});
+</script>
+
+{% endblock %}

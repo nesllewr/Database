@@ -115,6 +115,7 @@ def checktype():
 def patient():
     return render_template("patient.html")
 
+#환자 페이지 - 자주가는 병원 
 @app.route('/visited',methods=["post"])
 def visited():
     result = helper.get_visited_hos(session['idx'])
@@ -124,7 +125,7 @@ def visited():
 
 @app.route("/checkpres", methods=["POST"])
 def checkpres():
-    result = helper.check_prescription_info(session['idx'])
+    result = helper.check_prescription_info(session['idx'],None)
     result = json.dumps(result)
     return result
 
@@ -134,6 +135,9 @@ def selecthosp():
     mode = request.form["mode"]
     word = request.form["word"]
     result = helper.select_hospital_data(mode,word,session['lat'], session['lng'])
+    if(len(result)<0) :
+        helper.add_new_hosdata(session['lat'],session['lng'])
+    
     result = json.dumps(result)
     return result
 
@@ -142,6 +146,8 @@ def selectpharm():
     mode = request.form["mode"]
     word = request.form["word"]
     result = helper.select_pharmacy_data(mode,word,session['lat'], session['lng'])
+    if(len(result)<0):
+        helper.add_new_hosdata(session['lat'],session['lng'])
     result = json.dumps(result)
     return result
 
@@ -222,7 +228,22 @@ def prescript():
 def setprescript():
     helper.set_prescription(request.form,session['hosidx'])
     return "ok"
-    
+
+#병원 - 처방 기록 
+@app.route("/prescripted", methods=["GET"])
+def prescripted():
+    id = request.args.get("idx")
+    name = request.args.get('name')
+    return render_template('prescripted.html',hosname=session['hosname'],name = name)
+
+@app.route("/prescriptedlist", methods=["POST"])
+def prescriptedlist():
+    paidx = request.form['paidx']
+    print(paidx)
+    result = helper.check_prescription_info(paidx, session['hosidx'])
+    result = json.dumps(result)
+    return result
+
 #병원 - 환자방문 이력
 @app.route('/visitedpatient',methods=["post"])
 def visitedpa():
@@ -254,16 +275,14 @@ def prescription():
 def changestate():
     newstate = request.form['newstate']
     idx = request.form['idx']
-    print(newstate,idx)
     result = helper.change_state(newstate,idx)
     return "ok"
 
 @app.route("/completeprescription",methods=["POST"])
 def completeprescription():
-    newstate = request.form['newstate']
     idx = request.form['idx']
     word = request.form['word']
-    result = helper.complete_prescription(newstate,idx,word)
+    result = helper.complete_prescription(idx,word)
     return "ok"
 
 
