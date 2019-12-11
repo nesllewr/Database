@@ -64,13 +64,15 @@
                         data : data,
                         success: function(res) {
                             
-                        console.log(data)
                             if(res.trim() == '1') {
                                 alert("사용자 모드(환자)가 설정 되었습니다.");
                                 location.href = '/patient'                                
                             } else if(res.trim()=='2'){
                                 alert("사용자 모드(병원)가 설정 되었습니다.");
                                 location.href = '/hospital'
+                            } else if(res.trim()=='4'){
+                                alert("병원 등록이 필요합니다.");
+                                location.href = '/registerhos'
                             } else if(res.trim()=='3'){
                                 alert("사용자 모드(약국)가 설정 되었습니다.");
                                 location.href = '/pharmacy'

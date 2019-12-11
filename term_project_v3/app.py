@@ -91,13 +91,18 @@ def checktype():
             return '1'
         elif checkedtype == '2' :
             session['mode'] = checkedtype
-            result = helper.get_datatype(session['local'],session['domain'],checkedtype)[0]
-            session['hosidx']=result["idx"]
-            session['hoslat']=result["lat"]
-            session['hoslng']=result['lng']
-            session['hosname']=result['name']
-            result = json.dumps(result)
-            return '2'
+            checkhos = helper.check_hospital_idx(session['local'],session['domain'])[0]
+            print(checkhos['hosidx'])
+            if(checkhos['hosidx'] == 0) :
+                return '4'
+            else :
+                result = helper.get_datatype(session['local'],session['domain'],checkedtype)[0]
+                session['hosidx']=result["idx"]
+                session['hoslat']=result["lat"]
+                session['hoslng']=result['lng']
+                session['hosname']=result['name']
+                result = json.dumps(result)
+                return '2'
         else :
             session['mode'] = checkedtype            
             result = helper.get_datatype(session['local'],session['domain'],checkedtype)[0]
@@ -109,6 +114,19 @@ def checktype():
             return '3'
     else :
         return "failed"
+
+#병원 등록 페이지
+@app.route('/registerhos')
+def registerhos():
+    return render_template("registerhos.html", userid = session['idx'])
+
+@app.route('/puthos', methods=['POST'])
+def hospitalregister():
+    newhosid = request.form['hosidx']
+    result = helper.insert_hospital_idx(userid = session['idx'], newhosid = newhosid)
+    return result
+
+
 
 #환자 페이지
 @app.route('/patient')
@@ -135,9 +153,13 @@ def selecthosp():
     mode = request.form["mode"]
     word = request.form["word"]
     result = helper.select_hospital_data(mode,word,session['lat'], session['lng'])
-    if(len(result)<0) :
-        helper.add_new_hosdata(session['lat'],session['lng'])
     
+    if(len(result)<=0) :
+        newlat  = str(session['lat'])
+        newlng = str(session['lng'])
+        newresult = (helper.add_new_hosdata(mode, newlat, newlng))
+        newresult = json.dumps(newresult)
+        return newresult     
     result = json.dumps(result)
     return result
 
@@ -146,8 +168,11 @@ def selectpharm():
     mode = request.form["mode"]
     word = request.form["word"]
     result = helper.select_pharmacy_data(mode,word,session['lat'], session['lng'])
+    
     if(len(result)<0):
-        helper.add_new_hosdata(session['lat'],session['lng'])
+        newlat  = str(session['lat'])
+        newlng = str(session['lng'])
+        result = helper.add_new_phadata(mode,newlat,newlng)
     result = json.dumps(result)
     return result
 
@@ -190,9 +215,10 @@ def searchpha():
 def hospital():
     return render_template("hospital.html")
 
+#병원 정보 불러오기
 @app.route("/checkhosp", methods=["POST"])
 def checkhosp():
-    result = helper.check_hospital_info(session['hosidx'])
+    result = helper.check_hospital_info(session['hosidx'], session['hoslat'],session['hoslng'],session['lat'],session['lng'])
     result = json.dumps(result)
     return result
 

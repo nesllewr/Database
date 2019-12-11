@@ -5,7 +5,7 @@
 <section>
     <div class="w100">
         <br>
-        <table class="hospital-info">
+        <table id="hospital-info"class="hospital-info">
             <thead>
                 <tr>
                     <th>병원 이름</th>
@@ -17,17 +17,17 @@
                     <th>휴일</th>
                     <th>open time</th>
                     <th>close time</th>
+                    <th>현재 사용자와의 거리</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="9">병원 정보가 나타납니다.</td>
+                    <td colspan="10">병원 정보가 나타납니다.</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </section>
-<br>
 <br>
 <br>
 <section>
@@ -80,7 +80,6 @@
         <button class="btn" id="visiting">방문한 환자 목록</button>
     </div>
 </section>
-<br><br><br>
 <section>
     <div class="w100">
         <br>
@@ -112,6 +111,7 @@
                 type : "POST",
                 success : function(data){
                     console.log(data)
+
                     if(data.length > 2){
                         data = JSON.parse(data);
                         //var work = data.workingtime.split("/");
@@ -126,14 +126,15 @@
                         tbody += "<td>" + holiday[parseInt(data.holiday)] + "</td>";
                         tbody += "<td>(오전) "+ data.opent +"</td>";
                         tbody += "<td>(오후) "+ data.closet +"</td>";
+                        tbody += "<td> "+ data.distance + "</td>";
                         tbody += "</tr>";
                         
                         $(".hospital-info tbody").html(tbody);
                     }
+                    
                 }
                 
             });
-        
 
         $("body").on("click","#visiting",function(){
             $.ajax({
@@ -191,9 +192,16 @@
                             tbody += "<td>"+ el2.name +"</td>";
                             tbody += "<td>"+ el2.phone +"</td>";
                             tbody += "<td>"+ el2.rtime +"</td>";
-                            tbody += "<td>"+ '<button type="button" class="prebtn btn btn-blue" name="prescript" data-time ="'+el2.rtime+'" data-idx="'+el2.idx+'">처방</button>'+"</td>";
-                            tbody += "<td>"+ '<button type="button" class="beforebtn btn btn-green" name="prescripted" data-name ="'+el2.name+'" data-idx="'+el2.idx+'">처방 기록</button>'+"</td>";
-                            tbody += "<td>"+ '<button type="button" class="delbtn btn btn-red" name="del" data-idx="'+el2.rtime+'">예약 취소<f/button>'+"</td>";
+                            if(el2.checked == 0 ){
+                                tbody += "<td>"+ '<button type="button" class="prebtn btn btn-blue" name="prescript" data-time ="'+el2.rtime+'" data-idx="'+el2.idx+'">처방</button>'+"</td>";
+                                tbody += "<td>"+ '<button type="button" class="beforebtn btn btn-green" name="prescripted" data-name ="'+el2.name+'" data-idx="'+el2.idx+'">처방 기록</button>'+"</td>";
+                                tbody += "<td>"+ '<button type="button" class="delbtn btn btn-red" name="del" data-idx="'+el2.rtime+'">예약 취소<f/button>'+"</td>";
+                            }
+                            else {
+                                tbody += "<td></td>";
+                                tbody += "<td>"+ '<button type="button" class="beforebtn btn btn-green" name="prescripted" data-name ="'+el2.name+'" data-idx="'+el2.idx+'">처방 기록</button>'+"</td>";
+                                tbody += "<td></td>";
+                            }
                             tbody += "</tr>";
                         });
                     });

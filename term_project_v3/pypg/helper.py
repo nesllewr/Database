@@ -297,7 +297,8 @@ def update_data(data,local, domain):
     #typeset =data.split('/')
     condition = ""
     if '2' in data :
-        hosidx = str(random.randint(1,100))
+        #hosidx = str(random.randint(1,100))
+        hosidx =str(0)
         condition = "', hosidx = '"+ hosidx
     if '3' in data :
         phaidx =  str(random.randint(1,100))
@@ -309,6 +310,30 @@ def update_data(data,local, domain):
     connect.commit()
     connect.close()
     return data
+
+def insert_hospital_idx(userid, newhosid):
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    newhosid = str(newhosid)
+    userid = str(userid)
+    sql = "UPDATE member SET hosidx ='"+ newhosid +"'where idx='"+userid+"'"
+    cursor.execute(sql)
+
+    connect.commit()
+    connect.close()
+    return "ok"
+
+
+def check_hospital_idx(local,domain) : 
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    sql = "select hosidx from member where local ='"+local+"' AND domain ='"+domain+"'"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    connect.close()
+    return result
+
+
 
 def get_datatype(local, domain,mode):
     connect = pg.connect(connect_string)
@@ -345,7 +370,6 @@ def check_prescription_info(index,hosidx) :
         condition = "' order by issuetime DESC " 
     #sql = " select * from prescription join repharmacy on repharmacy.fk_prescription = prescription.idx where fk_member = '" + str(index) + "'"
     sql = "select * from prescription where fk_member  = '" + str(index) +condition 
-    print(sql)
     cursor.execute(sql)
     result = cursor.fetchall()
     if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
@@ -370,14 +394,16 @@ def select_hospital_data(mode,word,curlat, curlng) :
     curlng = str(curlng)
     
     if mode == "surround" :
-        condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5000 "
+        #condition = ""
+        condition = "where (6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5 "
     elif mode == "subject" :
-        condition = " hospital.subject LIKE '%" + word+"%'"
+        condition = "where hospital.subject LIKE '%" + word+"%'"
     elif mode == "hospname" : 
-        condition = " hospital.name LIKE '%"+ word + "%'"
+        condition = "where hospital.name LIKE '%"+ word + "%'"
 
-    sql = " select * from hospital where " + condition 
-    
+
+    sql = " select * from hospital " + condition 
+    print(condition)
     cursor.execute(sql)
     result = cursor.fetchall()
     connect.close()
@@ -393,11 +419,12 @@ def select_pharmacy_data(mode,word,curlat, curlng) :
     curlng = str(curlng)
     
     if mode == "surround" :
-        condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5000 "
+        #condition = ""
+        condition = "where (6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5 "
     elif mode == "pharmname" : 
-        condition = " pharmacy.name LIKE '%"+ word + "%'"
+        condition = "where pharmacy.name LIKE '%"+ word + "%'"
 
-    sql = " select * from pharmacy  where " + condition
+    sql = " select * from pharmacy " + condition
     cursor.execute(sql)
     result = cursor.fetchall()
     connect.close()
@@ -414,7 +441,6 @@ def set_prescription(data, hosidx):
     sql = f'''SELECT idx from rehospital where fk_hospital=\'{hosidx}\' AND fk_member =\'{data["paidx"]}\' AND rtime =\'{data['rtime']}\'''' 
     cursor.execute(sql)
     result = cursor.fetchall()[0]
-    print(result)
     sql = "UPDATE rehospital SET checked = 1, fk_prescription= '"+ str(result[0])+"' where fk_hospital = '"+ hosidx+"' AND fk_member ='"+data["paidx"]+"' AND rtime = '"+data['rtime']+"'"
     cursor.execute(sql)
     connect.commit()
@@ -422,12 +448,17 @@ def set_prescription(data, hosidx):
     connect.close()
     return "ok"
 
-#병원페이지,약국페이지 데이터 가져오기
-def check_hospital_info(index):
+#병원페이지 정보 가져오기 
+def check_hospital_info(index, setlat, setlng, curlat,curlng):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    sql = " select * from hospital where idx = '" + str(index) + "'"
-
+    curlat = str(curlat)
+    curlng = str(curlng)
+    setlat = str(setlat)
+    setlng = str(setlng)
+    condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"'))))"
+    sql = " select * ," +condition+ " as distance from hospital where idx = '" + str(index) + "'"
+    
     cursor.execute(sql)
     result = cursor.fetchall()
     if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
@@ -435,6 +466,9 @@ def check_hospital_info(index):
     connect.close()
     return result
 
+
+
+#약국페이지 데이터 가져오기
 def check_pharmacy_info(index):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -453,7 +487,7 @@ def select_patient_data(mode,word,table,index):
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     condition=""
     
-    print(word)
+    
     if table =="hospital":
         if mode == "paname" :
             condition = "AND member.name LIKE '%" + word + "%'"
@@ -463,7 +497,8 @@ def select_patient_data(mode,word,table,index):
             condition = "AND rehospital.rtime between '" + word +" 00:00:00' and '"+word+" 23:59:59' " 
         else :
             condition =""
-        sql = " select * from rehospital join member on member.idx = rehospital.FK_member where rehospital.FK_hospital = '" + str(index) + "' AND checked= '0' " + condition
+        #sql = " select * from rehospital join member on member.idx = rehospital.FK_member where rehospital.FK_hospital = '" + str(index) + "' AND checked= '0' " + condition
+        sql = " select * from rehospital join member on member.idx = rehospital.FK_member where rehospital.FK_hospital = '" + str(index) + "'" + condition
     elif table =="pharmacy":
         if mode == "paname" :
             condition = "AND prescription.memname LIKE '%" + word + "%'"
@@ -478,7 +513,7 @@ def select_patient_data(mode,word,table,index):
 
     cursor.execute(sql)
     result = cursor.fetchall()
-    print(sql)
+
     if len(result) > 0 : #result가 없는 경우 [0] 접근 불가
         for row in result:
             row["rtime"] = row.get("rtime").strftime("%Y-%m-%d %H:%M:%S")
@@ -492,6 +527,8 @@ def select_patient_data(mode,word,table,index):
     connect.close()
     return result
     
+
+#병원페이지 - 예약 취소시 rehospital에서 삭제
 def delete_data(time):
     connect = pg.connect(connect_string)
     cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -549,7 +586,7 @@ def get_workingtime(index,where):
     connect.close()
     return result
 
-
+#병원과 환자페이지 방문 목록 
 def get_visited_hos(paidx):
     connect = pg.connect(connect_string)
     cursor = connect.cursor()
@@ -559,18 +596,19 @@ def get_visited_hos(paidx):
     connect.close()
     return result
 
-
 def get_visited_pat(hosidx):
     connect = pg.connect(connect_string)
     cursor = connect.cursor()
     sql = "SELECT prescription.memname,count(memname) visited FROM prescription where fk_hospital='"+str(hosidx)+"' group by prescription.memname order by visited DESC;"
     cursor.execute(sql)
+    
     result = cursor.fetchall()
     connect.close()
     return result
 
+
 #hospital 추가 데이터 넣기
-def add_new_hosdata(lat,lng):
+def add_new_hosdata(mode,lat,lng):
     url = 'http://apis.data.go.kr/B551182/hospInfoService/getHospBasisList?serviceKey=XhfOkkV4VVmhR%2F2YKF%2FPmSlse%2F94onDOCkeG%2FrZ6zdShdhyS%2FbpcVXd1F78UWW4NhX4DIDVrltg1YisMdslXaw%3D%3D'
     url += '&format=json'
     url += '&numOfRows=100'
@@ -584,7 +622,12 @@ def add_new_hosdata(lat,lng):
     res = res.get("response").get("body").get("items").get("item")
 
     subjects = ["내과", "외과", "정형외과", "영상의학과", "마취통증학과", "치과", "안과"]
-
+    
+    opentime = ["9:00", "9:30","10:00","10:30","11:00"]
+    endtime = ["16:00","16:30","17:00","17:30","18:00"]
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor()
+        
     for row in res:
             name = row["yadmNm"]
             phone = row["telno"].replace("-", "")
@@ -605,10 +648,28 @@ def add_new_hosdata(lat,lng):
             sql = f'''insert into hospital (name,phone,doccnt,subject,lng,lat,addr,holiday,opent,closet) values ( \'{name}\', \'{phone}\',\'{docCnt}\', \'{subject}\',\'{lng}\',\'{lat}\', \'{addr}\',\'{holiday}\', \'{opent}\', \'{closet}\')'''
             cursor.execute(sql)
             connect.commit()
-    connect.close
+    
+    connect.close()
+         
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor()
+
+    if mode == "surround" :
+        condition = ""
+        #condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5 "
+    elif mode == "subject" :
+        condition = "where hospital.subject LIKE '%" + word+"%'"
+    elif mode == "hospname" : 
+        condition = "where hospital.name LIKE '%"+ word + "%'"
+
+    sql = " select * from hospital " + condition 
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    connect.close()
+    return result
     
  #pharmacy 추가 데이터 넣기
-def add_new_phadata(lat,lng):
+def add_new_phadata(mode, lat,lng):
     url = 'http://apis.data.go.kr/B551182/pharmacyInfoService/getParmacyBasisList?serviceKey=XhfOkkV4VVmhR%2F2YKF%2FPmSlse%2F94onDOCkeG%2FrZ6zdShdhyS%2FbpcVXd1F78UWW4NhX4DIDVrltg1YisMdslXaw%3D%3D'
     url += '&format=json'
     url += '&numOfRows=100'
@@ -620,6 +681,13 @@ def add_new_phadata(lat,lng):
     res = requests.get(url)
     res = xmltodict.parse(res.text)
     res = res.get("response").get("body").get("items").get("item")
+
+    
+    opentime = ["9:00", "9:30","10:00","10:30","11:00"]
+    endtime = ["16:00","16:30","17:00","17:30","18:00"]
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor()
+        
     
     for row in res:
         name = row["yadmNm"]
@@ -637,5 +705,15 @@ def add_new_phadata(lat,lng):
         cursor.execute(sql)
         connect.commit()
 
+    if mode == "surround" :
+        condition = ""
+        #condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5 "
+    elif mode == "pharmname" : 
+        condition = "where pharmacy.name LIKE '%"+ word + "%'"
 
-    connect.close
+    sql = " select * from pharmacy " + condition
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    connect.close()
+    return result
