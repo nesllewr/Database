@@ -1,0 +1,278 @@
+{% extends 'template.html' %}
+{% block content %}
+<section>
+    <div class="w100">
+        <button class="btn" id="visiting">방문한 병원 목록</button>
+    </div>
+</section>
+<section>
+    <div class="w100">
+        <br>
+        <table class="visited">
+            <thead>
+                <tr>
+                    <th> No </th>
+                    <th>병원 이름</th>
+                    <th>방문 횟수</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3">자주 간 병원 순으로 나타납니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+<br>
+<section>
+    <div class="w100">
+        
+처방전 목록은 최근 발급순으로 나타납니다.
+        <br>
+        <table class="prescription">
+            <thead>
+                <tr>
+                    <th> No </th>
+                    <th>병원 이름</th>
+                    <th>발급 날짜</th>
+                    <th>처방 의약품</th>
+                    <th>처방 여부</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4">처방 이력이 나타납니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+<br>
+<section>
+    <div class="info w100">
+        <form action="/selecthosp" method="post" class="hospitalForm"> 
+            <select class="input mode" name="mode"> 
+                <option id="surround" selected="selected" value="surround"> 
+                    주변 병원
+                </option> 
+                <option value="subject"> 
+                    진료 가능 과목 
+                </option> 
+                <option value="hospname"> 
+                    병원이름 
+                </option> 
+            </select>
+            <input type="text" name="search" class="input search" placeholder="검색어를 입력해주세요">
+            <button type="submit" id="submit" class="btn">검색</button>
+        </form> 
+    </div>
+</section>
+
+
+<br>
+<br>
+<div class="w100">
+    <div>
+        위도 : {{session["lat"]}}
+        경도 : {{session["lng"]}}
+        <br>
+        [병원 지도]
+    </div>
+    <div id="map" style="width:500px;height:400px;"></div>
+    
+     <div>
+        <br>
+        <table id = "hospital">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>과목</th>
+                    <th>휴일</th>
+                    <th>open time</th>
+                    <th>close time</th>
+                    <th>예약</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="8">검색 결과가 표시됩니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>    
+</div>
+
+
+<script>
+$(document).ready(function(){
+    var holiday = ["일", "월", "화", "수", "목", "금", "토"];
+    $.ajax({
+        url : "/checkpres",
+        data:{},
+        type : "POST",
+        success : function(data){
+            var tbody = "";  
+            if(data.length > 0){
+                data = JSON.parse(data);
+                $(data).each(function(e, el){
+                    tbody += "<tr>";
+                    tbody += "<td>"+ (e+1) +"</td>";
+                    tbody += "<td>"+ el.hosname +"</td>";
+                    tbody += "<td>"+ el.issuetime +"</td>";
+                    tbody += "<td>"+ el.medicine +"</td>";
+                    if(el.isdone=='0'){
+                        tbody += "<td>확인중</td>";                        
+                    }
+                    else if(el.isdone=='1'){
+                        tbody += "<td>처방 가능</td>";
+                    }
+                    else if(el.isdone=='2'){
+                        tbody += "<td>처방 불가능</td>";
+                    }
+                    else if(el.isdone=='3'){
+                        tbody += "<td>처방 완료</td>";
+                    }
+                    
+                    else {
+                        tbody += "<td>"+ '<button type="button" class="reserbtn btn btn-blue" name="reser" data-idx="'+el.idx+'">약국 예약</button>'+"</td>";
+                    }
+                    tbody += "</tr>";
+                    
+                });
+            }
+            $(".prescription tbody").html(tbody);
+        }
+        
+    });
+    $("body").on("click",".reserbtn",function(){
+        location.href = 'searchpha?idx='+ $(this).attr("data-idx");
+    });
+
+    $("body").on("click","#visiting",function(){
+        $.ajax({
+            type:"post",
+            url:"visited",
+            data: {},
+            success:function(data){
+                var tbody = "";  
+            if(data.length > 0){
+                data = JSON.parse(data);
+                console.log(data)
+                $(data).each(function(e, el){
+                    tbody += "<tr>";
+                    tbody += "<td>"+ (e+1) +"</td>";
+                    tbody += "<td>"+ el[0] +"</td>";
+                    tbody += "<td>"+ el[1] +"</td>";
+                    tbody += "</tr>";
+                    
+                });
+            }
+
+            $(".visited tbody").html(tbody);
+            }
+        });
+    });
+    
+});
+</script>
+{% if session['mode'] != '1' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script>
+{%endif%}
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=62c685e55918943e32edb967dcf1a4f5"></script>
+<script>
+    var container = document.getElementById('map')
+    var options = {
+        center : new kakao.maps.LatLng('{{session["lat"]}}', '{{session["lng"]}}'),
+        level : 5
+    };
+
+    var map = new kakao.maps.Map(container,options)
+
+    var containerOption = null;
+    var mapOption = null;
+</script>
+<script>
+function setMark(lat, lng, name) {
+    // 마커가 표시될 위치입니다 
+    var markerPosition  = new kakao.maps.LatLng(lat, lng); 
+
+    var marker = new kakao.maps.Marker({
+        position: markerPosition
+    });
+
+    // 마커가 지도 위에 표시되도록 설정합니다
+    marker.setMap(mapOption);
+
+    // 마커를 생성합니다
+    var info = new kakao.maps.InfoWindow({
+        position: markerPosition,
+        content: "<span class='tooltip'>" + name + "</span>"
+    });
+
+    info.open(mapOption, marker)
+
+    // 아래 코드는 지도 위의 마커를 제거하는 코드입니다
+    // marker.setMap(null);       
+}
+
+$(function() {
+    var holiday = ["일", "월", "화", "수", "목", "금", "토"];
+
+    $(".hospitalForm").submit(function(e) {
+        e.preventDefault();
+
+        var mode = $(".hospitalForm .mode").val();
+        var word = $(".hospitalForm .search").val();
+       
+        $.ajax({
+            url: "/selecthosp",
+            data: {
+                mode : mode,
+                word: word
+            },
+            type: "post",
+            success: function(data) {
+                //data = JSON.parse(data);
+                var tbody = "";
+                if(data.length <= 0) {
+                    tbody += "<tr>";
+                    tbody += "<td colspan='8'>검색 결과가 없습니다.</td>";
+                    tbody += "</tr>";
+                } else {
+                    containerOption = container;
+                    mapOption = map;
+                    $(data).each(function(e, el) {
+                        setMark(el.lat, el.lng, el.name);
+                        tbody += "<tr>";
+                        tbody += "<td>"+ (e + 1) +"</td>";
+                        tbody += "<td>"+ el.name +"</td>";
+                        tbody += "<td>"+ el.phone +"</td>";
+                        tbody += "<td>"+ el.subject+"</td>";
+                        tbody += "<td>" + holiday[parseInt(el.holiday)] + "</td>";
+                        tbody += "<td>(오전) "+ el.opent +"</td>";
+                        tbody += "<td>(오후) "+ el.closet +"</td>";
+                        tbody += "<td>"+ '<button type="button" class="reserbtn btn btn-red" name="reser" data-idx="'+el.idx+'">예약</button>'+"</td>";
+                        tbody += "</tr>";
+                    });
+                }
+                $("#hospital tbody").html(tbody);
+                
+                
+            }
+        });
+
+        $("body").on("click",".reserbtn",function(){
+            location.href = 'reserve?where=hospital&idx='+ $(this).attr("data-idx");
+        });
+
+    });
+});
+</script>
+
+{% endblock %}

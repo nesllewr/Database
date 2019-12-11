@@ -1,0 +1,150 @@
+{% extends 'template.html' %}
+{% block content %}
+
+<br>
+ <section>
+    <div class="info w100">
+        <form action="/selectpharm" method="post" class="pharmacyForm"> 
+            <select class="input mode" name="mode"> 
+                <option selected="selected" value="surround"> 
+                    주변 약국
+                </option> 
+                <option value="pharmname"> 
+                    약국이름 
+                </option> 
+            </select>
+            <input type="text" name="search" class="input search" placeholder="검색어를 입력해주세요">
+        
+            <button type="submit" id="submit" class="btn">검색</button>
+        </form> 
+    </div>
+    <div class="w100">
+            [약국 지도]
+    </div>
+    <div class="w100" id="map2" style="width:500px;height:400px;"></div>
+        
+    <div class="w100">
+        <br>
+        <table class="pharmacy">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>휴일</th>
+                    <th>open time</th>
+                    <th>close time</th>
+                    <th>예약</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6">검색 결과가 표시됩니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>   
+    
+</section>   
+    
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=62c685e55918943e32edb967dcf1a4f5"></script>
+<script>
+    var pharmacy = document.getElementById('map2')
+    var options = {
+        center : new kakao.maps.LatLng('{{session["lat"]}}', '{{session["lng"]}}'),
+        level : 5
+    };
+
+    var pharmacyMap = new kakao.maps.Map(pharmacy, options);
+
+    var containerOption = null;
+    var mapOption = null;
+</script>
+<script>
+function setMark(lat, lng, name) {
+    // 마커가 표시될 위치입니다 
+    var markerPosition  = new kakao.maps.LatLng(lat, lng); 
+
+    var marker = new kakao.maps.Marker({
+        position: markerPosition
+    });
+
+    // 마커가 지도 위에 표시되도록 설정합니다
+    marker.setMap(mapOption);
+
+    // 마커를 생성합니다
+    var info = new kakao.maps.InfoWindow({
+        position: markerPosition,
+        content: "<span class='tooltip'>" + name + "</span>"
+    });
+
+    info.open(mapOption, marker)
+
+    // 아래 코드는 지도 위의 마커를 제거하는 코드입니다
+    // marker.setMap(null);       
+}
+
+$(function() {
+    var holiday = ["일", "월", "화", "수", "목", "금", "토"];
+        
+    $(".pharmacyForm").submit(function(e) {
+        e.preventDefault();
+
+        var mode = $(".pharmacyForm .mode").val();
+        var word = $(".pharmacyForm .search").val();
+
+        $.ajax({
+            url: "/selectpharm",
+            data: {
+                mode : mode,
+                word: word
+            },
+            type: "post",
+            success: function(data) {
+                data = JSON.parse(data);
+
+                var tbody = "";
+
+                if(data.length <= 0) {
+                    tbody += "<tr>";
+                    tbody += "<td colspan='6'>검색 결과가 없습니다.</td>";
+                    tbody += "</tr>";
+                } else {
+                    containerOption = pharmacy;
+                    mapOption = pharmacyMap;
+                    $(data).each(function(e, el) {
+                        setMark(el.lat, el.lng, el.name);
+                        tbody += "<tr>";
+                        tbody += "<td>"+ (e + 1) +"</td>";
+                        tbody += "<td>"+ el.name +"</td>";
+                        tbody += "<td>"+ el.phone +"</td>";
+                        tbody += "<td>" + holiday[parseInt(el.holiday)] + "</td>";
+                        tbody += "<td>오전 "+ el.opent +"</td>";
+                        tbody += "<td>오후 "+ el.closet +"</td>";
+                        tbody += "<td>"+ '<button type="button" class="reserbtn btn btn-red" name="reser" data-idx="'+el.idx+'">예약</button>'+"</td>";
+                        tbody += "</tr>";
+                    });
+                }
+                $(".pharmacy tbody").html(tbody);
+                
+            }
+        });
+        
+        $("body").on("click",".reserbtn",function(){
+            location.href = 'reserve?where=pharmacy&idx='+ $(this).attr("data-idx")+ '&pre={{preidx}}';
+        });
+    });
+
+});
+</script>
+ 
+
+
+{% if session['mode'] != '1' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script>
+{%endif%}
+
+{% endblock %}

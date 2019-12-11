@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+    <head>
+        <title>DB</title>
+        <link rel="stylesheet" href="/static/login.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="w100">
+                <h1>
+                    <a href="/" style="color:aliceblue;">HYU DB Term Project - Dr.HYU</a>
+                </h1>
+            </div>
+        </header> 
+        
+        <div id="absoluteCenteredDiv">
+            <form action="/" method="post">
+                <div class="box">
+                    <h1>Login Form</h1>
+                    <input class="username" name="email" id="user-email" type="email" placeholder="User e-mail">
+                    <input class="username" name="pw" id="user-pw" type="password" placeholder="Password">
+                    
+                    <button type="submit" id="submit" class="btn-login">Sign IN</button>
+                </div>
+            </form>
+            <p>Let's JOIN!        <a class="join" href="/join">Click Here!</a></p>
+            <div id="msg"></div>
+              
+            <footer>
+                <div>
+                    HYU DB Term Project
+                </div>
+            </footer>
+        </div>      
+    </body>
+        <script>
+            $(document).ready(function() {
+                $('form').submit(function(e) {
+                    e.preventDefault();
+                    //var action = $('#frmLogin').attr("action");
+                    var form_data = {
+                        email: $('#user-email').val(),
+                        password: $('#user-pw').val()
+                    };
+
+                    if(form_data.email==""||form_data.password==""){
+                        alert("아이디/비밀번호를 입력하세요.")
+                        return false
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: "/login",
+                        data: form_data,
+                        success: function(res) {
+                            if(res.trim() == "ok") {
+                                alert("로그인 되었습니다.");
+                                location.href = '/mode'                                 
+                            }else if(res.trim()=="type"){
+                                alert("사용자 타입 설정이필요합니다.")
+                                location.href='/settype'
+
+                            }else {
+                                alert("아이디 또는 비밀번호가 틀렸습니다.")
+                                return false
+                                }
+
+                        },
+                        error: function() {
+                            $('#msg').html("<h2>try again! </h2>");
+                        }
+
+                    });
+
+                });
+
+            });
+
+        </script>
+    </body>
+</html>

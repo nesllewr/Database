@@ -8,9 +8,7 @@
         <table class="hospital">
             <thead>
                 <tr>
-                    <th>병원 이름</th>
-                    <th>전문의 의원 수</th>
-                    <th>진료과목</th>
+                    <th>약국 이름</th>
                     <th>위도</th>
                     <th>경도</th>
                     <th>주소</th>
@@ -21,7 +19,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="9">병원 정보가 나타납니다.</td>
+                    <td colspan="7">약국 정보가 나타납니다.</td>
                 </tr>
             </tbody>
         </table>
@@ -31,7 +29,7 @@
 <br>
 <br>
 <section>
-    <div class="info">
+    <div class="info w100">
         <form action="/selectpat" method="post" class="patientForm"> 
             <select class="input mode" name="mode"> 
                 <option id="surround" selected="selected" value="all"> 
@@ -59,15 +57,16 @@
                 <tr>
                     <th>No.</th>
                     <th>예약자 이름</th>
-                    <th>전화 번호</th>
+                    <th>처방 병원</th>
                     <th>예약 시간</th>
-                    <th>처방</th>
-                    <th>삭제</th>
+                    <th>처방 여부</th>
+                    <th>처방 시각</th>
+                    <th>열람</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="6">예약 환자 정보가 나타납니다.</td>
+                    <td colspan="5">예약 환자 정보가 나타납니다.</td>
                 </tr>
             </tbody>
         </table>
@@ -76,29 +75,26 @@
     
 
 <script>
-    //병원 정보 불러오기
+    //약국 정보 불러오기
     $(document).ready(function(){
         var holiday = ["일", "월", "화", "수", "목", "금", "토"];
             $.ajax({
-                url : "/checkhosp",
+                url : "/checkphar",
                 data:{},
                 type : "POST",
                 success : function(data){
-                    console.log(data)
                     if(data.length > 2){
                         data = JSON.parse(data);
-                        var work = data.workingtime.split("/");
+                        //var work = data.workingtime.split("/");
                         var tbody = "";
                         tbody += "<tr>";
                         tbody += "<td>"+ data.name +"</td>";
-                        tbody += "<td>"+ data.doccnt +"</td>";
-                        tbody += "<td>"+ data.subject +"</td>";
                         tbody += "<td>"+ data.lat +"</td>";
                         tbody += "<td>"+ data.lng +"</td>";
                         tbody += "<td>"+ data.addr +"</td>";   
-                        tbody += "<td>" + holiday[parseInt(work[0])] + "</td>";
-                        tbody += "<td>오전 "+ work[1] +"</td>";
-                        tbody += "<td>오후 "+ work[2] +"</td>";
+                        tbody += "<td>" + holiday[parseInt(data.holiday)] + "</td>";
+                        tbody += "<td>(오전) "+ data.opent +"</td>";
+                        tbody += "<td>(오후) "+ data.closet +"</td>";
                         tbody += "</tr>";
                         
                         $(".hospital tbody").html(tbody);
@@ -120,10 +116,11 @@
             data: {
                 mode : mode,
                 word: word,
-                where:"hospital"
+                where:"pharmacy"
             },
             type: "post",
             success: function(data) {
+
                 data = JSON.parse(data);
                 var tbody = "";
                 if(data.length <= 0) {
@@ -132,14 +129,31 @@
                     tbody += "</tr>";
                 } else {
                     $(data).each(function(e, el) {
-                        tbody += "<tr>";
-                        tbody += "<td>"+ (e + 1) +"</td>";
-                        tbody += "<td>"+ el.name +"</td>";
-                        tbody += "<td>"+ el.phone +"</td>";
-                        tbody += "<td>"+ el.rtime +"</td>";
-                        tbody += "<td>"+ '<button type="button" class="prebtn btn btn-blue" name="prescript" data-idx="'+el.idx+'">처방</button>'+"</td>";
-                        tbody += "<td>"+ '<button type="button" class="delbtn btn btn-red" name="del" data-idx="'+el.idx+'">예약 취소<f/button>'+"</td>";
-                        tbody += "</tr>";
+                        $(el).each(function(e2, el2) {
+                            tbody += "<tr>";
+                            tbody += "<td>"+ (e + 1) +"</td>";
+                            tbody += "<td>"+ el2.memname +"</td>";
+                            tbody += "<td>"+ el2.hosname +"</td>";
+                            tbody += "<td>"+ el2.rtime +"</td>";
+                            if(el.isdone=='0'){
+                                tbody += "<td>확인 가능</td>";
+                                tbody += "<td></td>";
+                            }
+                            else if(el.isdone=='1'){
+                                tbody += "<td>처방 가능</td>";
+                                tbody += "<td></td>";
+                            }
+                            else if(el.isdone=='2'){
+                                tbody += "<td>처방 불가능</td>";
+                                tbody += "<td></td>";
+                            }
+                            else if(el.isdone=='3'){
+                                tbody += "<td>처방 완료</td>";
+                                tbody += "<td>"+ el2.medtime +"</td>";
+                            }
+                            tbody += "<td>"+ '<button type="button" class="readbtn btn btn-green" name="read" data-name="'+el2.isdone+'" data-idx="'+el2.fk_prescription+'">열람</button>'+"</td>";
+                            tbody += "</tr>";
+                        });
                     });
                 }
                 $(".patient-info tbody").html(tbody);
@@ -147,32 +161,18 @@
             }
         });
 
-        $("body").on("click",".prebtn",function(){
-            location.href = '/prescript?idx=' + $(this).attr("data-idx");
+        
+        $("body").on("click",".readbtn",function(){
+            location.href = '/prescription?idx=' + $(this).attr("data-idx")+'&done=' + $(this).attr("data-name");
         });
 
-        $("body").on("click",".delbtn",function(){
-            var idx = $(this).attr("data-idx");
-            var btn = $(this);
-            $.ajax({
-                type: "post",
-                url: "/delete",
-                data: {
-                    idx: idx
-                },
-                success: function(data) {
-                    $(btn).parents("tr").remove();
-                }
-            });
-
-        });
     });
 
 
 </script>
 
 
-{% if session['mode'] != '2' : %}
+{% if session['mode'] != '3' : %}
 <script>
     alert("잘못된 접근입니다.");
     location.href="/mode"

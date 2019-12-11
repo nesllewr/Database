@@ -1,0 +1,127 @@
+{% extends 'template.html' %}
+{% block content %}
+
+<div>
+    예약자 idx번호
+    발급 연월일
+    성명
+    의료기관 명칭*
+    처방의약품명칭 / 1회 투약량/ 1일 투여횟수/ 총 투약일수 
+    조제기관의 명칭* 
+    조제연월일
+    처방의 변경 수정 확인 대체 시 그 내용
+</div>
+<br>
+<section>
+    <div class="w100">
+        <!-- 127.0.0.1:5000/save -->
+        <form action="/prescripttime" id="register" method="post">
+            <table style="width:60%; margin:auto; border:1px solid rgb(51, 78, 173); text-align: left;">
+                    <tr>
+                    <th colspan="4" style="background-color: cornflowerblue;" >처방 정보</th>
+                    </tr>
+                    <tr>    
+                        <td>예약자 성명</td>
+                        <td>
+                            <input id="patient" name="patient" class ="input" value="{{name}}" readonly>
+                        </td>
+                    </tr>
+                    <tr>    
+                        <td>의료 기관 명칭</td>
+                        <td>
+                            <input id="hosname" name="hosname" class ="input" value="{{hosname}}" readonly>
+                        </td>
+                    </tr>
+            
+                    <tr>    
+                        <td>처방의약품명칭</td>
+                        <td>
+                            <input type="text" id="med-type" name="med-type" class ="input" value="타이레놀">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>1회 투약량</td>
+                        <td>
+                            <input type="text" id="once-med" name="once-med" class ="input" value="30">    
+                        </td>                    
+                    </tr>
+
+                    <tr>
+                        <td>1일 투여횟수</td>
+                        <td>                       
+                            <input type="text" id="day-med" name="day-met" class ="input" value="3"> 
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>총 투약일수</td>
+                        <td>
+                            <input type="text" id="total-med" name="total-med" class ="input" value="9">
+                        </td>
+                    </tr>
+                    
+                    <!-- <tr>
+                        <td>처방날짜</td>
+                        <td>
+                            <input type="date" id="bday" name="bday" class="input">
+                        </td>
+                        
+                        <td>처방시간</td>
+                        <td>
+                            <input type="time" id="btime" name="btime" class="input">
+                        </td>
+                    </tr> -->
+                </table>
+                <p style="text-align: center;">                    
+                    <button class="btn" type="submit" id="submit">처방 완료</button>
+                </p>    
+        </form>
+    </div>
+</section>
+
+<script>
+$("form").on("submit", function(e) {
+    e.preventDefault();
+    
+    var url = new URL(location.href);
+    paidx = url.searchParams.get("idx");
+    rtime = url.searchParams.get("time")
+    
+    var data = {
+        paidx : paidx,
+        rtime : rtime,
+        patient: $("#patient").val(),
+        hosname: $("#hosname").val(),
+        medtype: $("#med-type").val(),
+        oncemed: $("#once-med").val(),
+        daymed: $("#day-med").val(),
+        totalmed: $("#total-med").val(),
+        // bday : $("#bday").val(),
+        // btime : $("#btime").val()  
+    };
+    $.ajax({
+        url:'/setprescript',
+        type:'post',
+        data: data, 
+        success : function(data){
+            alert("처방전이 발급되었습니다.");
+            location.href = '/hospital';
+        },
+        error:function(){
+            alert("try again");
+        }
+    });
+});
+</script>
+
+
+{% if session['mode'] != '2' : %}
+<script>
+    alert("잘못된 접근입니다.");
+    location.href="/mode"
+</script>
+{%endif%}
+<script></script>
+
+{% endblock %}

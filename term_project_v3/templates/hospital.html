@@ -5,7 +5,7 @@
 <section>
     <div class="w100">
         <br>
-        <table class="hospital">
+        <table id="hospital-info"class="hospital-info">
             <thead>
                 <tr>
                     <th>병원 이름</th>
@@ -17,11 +17,12 @@
                     <th>휴일</th>
                     <th>open time</th>
                     <th>close time</th>
+                    <th>현재 사용자와의 거리</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="9">병원 정보가 나타납니다.</td>
+                    <td colspan="10">병원 정보가 나타납니다.</td>
                 </tr>
             </tbody>
         </table>
@@ -29,9 +30,8 @@
 </section>
 <br>
 <br>
-<br>
 <section>
-    <div class="info">
+    <div class="info w100">
         <form action="/selectpat" method="post" class="patientForm"> 
             <select class="input mode" name="mode"> 
                 <option id="surround" selected="selected" value="all"> 
@@ -49,12 +49,13 @@
             </select>
             <input type="text" name="search" class="input search" placeholder="검색어를 입력해주세요">
             <button type="submit" id="submit" class="btn">검색</button>
+            날짜 검색 시 YYYY-MM-DD 형식으로 입력해주세요
         </form> 
     </div>
 </section>
 <section>
     <div class="w100">
-        <table class="patient-info">
+        <table class="patient-info" id="hospital">
             <thead>
                 <tr>
                     <th>No.</th>
@@ -62,6 +63,7 @@
                     <th>전화 번호</th>
                     <th>예약 시간</th>
                     <th>처방</th>
+                    <th>처방 기록</th>
                     <th>삭제</th>
                 </tr>
             </thead>
@@ -73,7 +75,31 @@
         </table>
     </div>
 </section>
-    
+<section>
+    <div class="w100">
+        <button class="btn" id="visiting">방문한 환자 목록</button>
+    </div>
+</section>
+<section>
+    <div class="w100">
+        <br>
+        <table class="visited">
+            <thead>
+                <tr>
+                    <th> No </th>
+                    <th>환자 이름</th>
+                    <th>방문 횟수</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3">환자 방문 이력이 나타납니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
 
 <script>
     //병원 정보 불러오기
@@ -85,9 +111,10 @@
                 type : "POST",
                 success : function(data){
                     console.log(data)
+
                     if(data.length > 2){
                         data = JSON.parse(data);
-                        var work = data.workingtime.split("/");
+                        //var work = data.workingtime.split("/");
                         var tbody = "";
                         tbody += "<tr>";
                         tbody += "<td>"+ data.name +"</td>";
@@ -96,16 +123,43 @@
                         tbody += "<td>"+ data.lat +"</td>";
                         tbody += "<td>"+ data.lng +"</td>";
                         tbody += "<td>"+ data.addr +"</td>";   
-                        tbody += "<td>" + holiday[parseInt(work[0])] + "</td>";
-                        tbody += "<td>오전 "+ work[1] +"</td>";
-                        tbody += "<td>오후 "+ work[2] +"</td>";
+                        tbody += "<td>" + holiday[parseInt(data.holiday)] + "</td>";
+                        tbody += "<td>(오전) "+ data.opent +"</td>";
+                        tbody += "<td>(오후) "+ data.closet +"</td>";
+                        tbody += "<td> "+ data.distance + "</td>";
                         tbody += "</tr>";
                         
-                        $(".hospital tbody").html(tbody);
+                        $(".hospital-info tbody").html(tbody);
                     }
+                    
                 }
                 
             });
+
+        $("body").on("click","#visiting",function(){
+            $.ajax({
+                type:"post",
+                url:"/visitedpatient",
+                data: {},
+                success:function(data){
+                    var tbody = "";  
+                if(data.length > 0){
+                    data = JSON.parse(data);
+                    console.log(data)
+                    $(data).each(function(e, el){
+                        tbody += "<tr>";
+                        tbody += "<td>"+ (e+1) +"</td>";
+                        tbody += "<td>"+ el[0] +"</td>";
+                        tbody += "<td>"+ el[1] +"</td>";
+                        tbody += "</tr>";
+                        
+                    });
+                }
+
+                $(".visited tbody").html(tbody);
+                }
+            });
+        });
         
     });
     //버튼 클릭시 예약 환자 정보 불러오기
@@ -132,14 +186,24 @@
                     tbody += "</tr>";
                 } else {
                     $(data).each(function(e, el) {
-                        tbody += "<tr>";
-                        tbody += "<td>"+ (e + 1) +"</td>";
-                        tbody += "<td>"+ el.name +"</td>";
-                        tbody += "<td>"+ el.phone +"</td>";
-                        tbody += "<td>"+ el.rtime +"</td>";
-                        tbody += "<td>"+ '<button type="button" class="prebtn btn btn-blue" name="prescript" data-idx="'+el.idx+'">처방</button>'+"</td>";
-                        tbody += "<td>"+ '<button type="button" class="delbtn btn btn-red" name="del" data-idx="'+el.idx+'">예약 취소<f/button>'+"</td>";
-                        tbody += "</tr>";
+                        $(el).each(function(e2, el2) {
+                            tbody += "<tr>";
+                            tbody += "<td>"+ (e + 1) +"</td>";
+                            tbody += "<td>"+ el2.name +"</td>";
+                            tbody += "<td>"+ el2.phone +"</td>";
+                            tbody += "<td>"+ el2.rtime +"</td>";
+                            if(el2.checked == 0 ){
+                                tbody += "<td>"+ '<button type="button" class="prebtn btn btn-blue" name="prescript" data-time ="'+el2.rtime+'" data-idx="'+el2.idx+'">처방</button>'+"</td>";
+                                tbody += "<td>"+ '<button type="button" class="beforebtn btn btn-green" name="prescripted" data-name ="'+el2.name+'" data-idx="'+el2.idx+'">처방 기록</button>'+"</td>";
+                                tbody += "<td>"+ '<button type="button" class="delbtn btn btn-red" name="del" data-idx="'+el2.rtime+'">예약 취소<f/button>'+"</td>";
+                            }
+                            else {
+                                tbody += "<td></td>";
+                                tbody += "<td>"+ '<button type="button" class="beforebtn btn btn-green" name="prescripted" data-name ="'+el2.name+'" data-idx="'+el2.idx+'">처방 기록</button>'+"</td>";
+                                tbody += "<td></td>";
+                            }
+                            tbody += "</tr>";
+                        });
                     });
                 }
                 $(".patient-info tbody").html(tbody);
@@ -148,7 +212,10 @@
         });
 
         $("body").on("click",".prebtn",function(){
-            location.href = '/prescript?idx=' + $(this).attr("data-idx");
+            location.href = '/prescript?idx=' + $(this).attr("data-idx")+'&time=' + $(this).attr("data-time");
+        });
+        $("body").on("click",".beforebtn",function(){
+            location.href = '/prescripted?idx=' + $(this).attr("data-idx")+'&name=' + $(this).attr("data-name");
         });
 
         $("body").on("click",".delbtn",function(){
