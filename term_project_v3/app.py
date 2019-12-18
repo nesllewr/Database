@@ -157,8 +157,10 @@ def selecthosp():
     if(len(result)<=0) :
         newlat  = str(session['lat'])
         newlng = str(session['lng'])
-        newresult = (helper.add_new_hosdata(mode, newlat, newlng))
+        newresult = (helper.add_new_hosdata(mode,newlat, newlng))
+        print(newresult)
         newresult = json.dumps(newresult)
+        #print(newresult)
         return newresult     
     result = json.dumps(result)
     return result

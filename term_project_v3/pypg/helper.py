@@ -405,6 +405,7 @@ def select_hospital_data(mode,word,curlat, curlng) :
     sql = " select * from hospital " + condition 
     cursor.execute(sql)
     result = cursor.fetchall()
+    print(result)
     connect.close()
     return result
 
@@ -648,20 +649,21 @@ def add_new_hosdata(mode,lat,lng):
             cursor.execute(sql)
             connect.commit()
     
-    connect.close()
          
+    connect.close()
+
     connect = pg.connect(connect_string)
-    cursor = connect.cursor()
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     if mode == "surround" :
-        condition = ""
+        condition = " limit 20"
         #condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5 "
     elif mode == "subject" :
         condition = "where hospital.subject LIKE '%" + word+"%'"
     elif mode == "hospname" : 
         condition = "where hospital.name LIKE '%"+ word + "%'"
 
-    sql = " select * from hospital " + condition + " order by idx DESC limit 30 "
+    sql = " select * from hospital " + condition 
     cursor.execute(sql)
     result = cursor.fetchall()
     connect.close()
@@ -704,15 +706,22 @@ def add_new_phadata(mode, lat,lng):
         cursor.execute(sql)
         connect.commit()
 
+    connect.close()
+
+    connect = pg.connect(connect_string)
+    cursor = connect.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
     if mode == "surround" :
-        condition = ""
+        condition = "limit 20"
         #condition = "(6371*acos(cos(radians('"+curlat+"'))*cos(radians('"+setlat+"'))*cos(radians('"+setlng+"')-radians('"+curlng+"'))+sin(radians('"+curlat+"'))*sin(radians('"+setlat+"')))) <= 5 "
     elif mode == "pharmname" : 
         condition = "where pharmacy.name LIKE '%"+ word + "%'"
 
-    sql = " select * from pharmacy " + condition + "order by idx DESC limit 30"
+    sql = " select * from pharmacy " + condition 
     cursor.execute(sql)
     result = cursor.fetchall()
     
     connect.close()
     return result
+
+    
