@@ -403,7 +403,6 @@ def select_hospital_data(mode,word,curlat, curlng) :
 
 
     sql = " select * from hospital " + condition 
-    print(condition)
     cursor.execute(sql)
     result = cursor.fetchall()
     connect.close()
@@ -662,7 +661,7 @@ def add_new_hosdata(mode,lat,lng):
     elif mode == "hospname" : 
         condition = "where hospital.name LIKE '%"+ word + "%'"
 
-    sql = " select * from hospital " + condition 
+    sql = " select * from hospital " + condition + " order by idx DESC limit 30 "
     cursor.execute(sql)
     result = cursor.fetchall()
     connect.close()
@@ -711,7 +710,7 @@ def add_new_phadata(mode, lat,lng):
     elif mode == "pharmname" : 
         condition = "where pharmacy.name LIKE '%"+ word + "%'"
 
-    sql = " select * from pharmacy " + condition
+    sql = " select * from pharmacy " + condition + "order by idx DESC limit 30"
     cursor.execute(sql)
     result = cursor.fetchall()
     
