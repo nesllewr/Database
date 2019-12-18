@@ -209,7 +209,12 @@ def selectpat():
     mode = request.form["mode"]
     word = request.form["word"]
     where = request.form["where"]
+<<<<<<< HEAD
+    print("1")
+=======
+>>>>>>> d1c87004fb4421f723e373adf29dc674fef9eb27
     result = helper.select_patient_data(mode,word,where)
+    print("2")
     result = json.dumps(result)
     return result
 
